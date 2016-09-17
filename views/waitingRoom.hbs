@@ -1,0 +1,391 @@
+<!--<script src="/waitingroom.js" type = "text/babel"></script>-->
+
+<h3 id = "header">Access Code:</h3>
+<h1 id = "accessCode">{{accessCode}}</h1>
+
+<div id = "roleinfo" class = "status"></div>
+<br>
+<div id = "status" class = "status">
+  <div id = "leadinfo" class="leadStuff status">You are the leader. Propose <span id = "questNumPeople"></span> players to go on quest <span id = "currentQuest"></span>.<br></div>
+</div>
+
+<div id = "questTrack" class="displayOnStart" style="width:100%; min-width: 400px; margin-top: 30px; height: 60px">
+  <span id = "quest1" class = "glyphicon glyphicon-question-sign questGlyph"></span>
+  <span id = "quest2" class = "glyphicon glyphicon-question-sign questGlyph"></span>
+  <span id = "quest3" class = "glyphicon glyphicon-question-sign questGlyph"></span>
+  <span id = "quest4" class = "glyphicon glyphicon-question-sign questGlyph"></span>
+  <span id = "quest5" class = "glyphicon glyphicon-question-sign questGlyph"></span>
+</div>
+<div id = "questTextContainer" class="displayOnStart" style="width:100%; min-width: 400px; margin-top: -60px; height: 60px">
+  <span id = "questtext1" class = "questText">2</span>
+  <span id = "questtext2" class = "questText">3</span>
+  <span id = "questtext3" class = "questText">2</span>
+  <span id = "questtext4" class = "questText">2</span>
+  <span id = "questtext5" class = "questText">2</span>
+</div>
+<table class = "table" id = "connectedPlayers" style="width:100%; min-width: 400px; margin-top: 30px;">
+  <thead>
+    <tr>
+      <th id = "tableTitle">Connected Players: <span id = "numPlayers">{{numPlayers}}</span><span class = "removeOnStart">/10</span></th>
+    </tr>
+  </thead>
+  {{#each players}}
+  <tr>
+    <td id = "{{{IDString}}}">
+      <span class = "playerName">{{name}}</span><span class = "leadPlayer"></span><span class = "voteIcon"></span>
+    </td>
+  </tr>
+  {{/each}}
+</table>
+
+{{#if host}}
+  <button id = "startbtn" class = "btn btn-lg btn-secondary" disabled>Start</button>
+{{/if}}
+<div id = "proposeStatus" class = "status leadStuff"></div>
+<div id = "voteStatus" class = "status voteStuff"></div>
+<div id = "missionStatus" class = "status missionStuff"></div>
+<br><br>
+<button id = "proposebtn" class = "btn btn-lg btn-secondary leadStuff" disabled>Submit</button>
+<button id = "approvebtn" class = "btn btn-lg btn-secondary voteStuff votebtn">Approve</button>
+<button id = "rejectbtn" class = "btn btn-lg btn-secondary voteStuff votebtn">Reject</button>
+<button id = "successbtn" class = "btn btn-lg btn-secondary missionStuff missionbtn">Success</button>
+<button id = "failbtn" class = "btn btn-lg btn-secondary missionStuff missionbtn">Fail</button>
+
+<script id = "ID">
+  {{ID}}
+</script>
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script>
+  $(function() {
+    var ID = parseInt($('#ID').text());
+    var accessCode = parseInt($('#accessCode').text());
+    var numPlayers = parseInt($('#numPlayers').text());
+    var leadPlayer;
+    var playersChosen = [];
+    var playersNeeded;
+    var proposeStatus;
+    var players;
+    var quests;
+    var currentQuest;
+    if(numPlayers >= 5)
+    {
+      $('#startbtn').prop('disabled', false);
+    }
+    var IO = {
+
+        /**
+         * This is called when the page is displayed. It connects the Socket.IO client
+         * to the Socket.IO server
+         */
+        init: function() {
+            IO.socket = io.connect();
+            IO.socket.emit('joinedWaitingRoom', $('#accessCode').text());
+            IO.bindEvents();
+        },
+
+        /**
+         * While connected, Socket.IO will listen to the following events emitted
+         * by the Socket.IO server, then run the appropriate function.
+         */
+        bindEvents : function() {
+            //IO.socket.on('connected', IO.onConnected );
+            //IO.socket.on('newGameCreated', IO.onNewGameCreated );
+            IO.socket.on('playerJoinedRoom', IO.playerJoinedRoom );
+            IO.socket.on('gameStarted', IO.gameStarted);
+            IO.socket.on('questProposed', IO.questProposed);
+            IO.socket.on('voteCounted', IO.voteCounted);
+        },
+
+        playerJoinedRoom : function(name) {
+            // When a player joins a room, do the updateWaitingScreen funciton.
+            // There are two versions of this function: one for the 'host' and
+            // another for the 'player'.
+            //
+            // So on the 'host' browser window, the App.Host.updateWiatingScreen function is called.
+            // And on the player's browser, App.Player.updateWaitingScreen is called.
+            $('<tr><td id = player' + numPlayers+ '><span class = "playerName">' + name + '</span><span class = "leadPlayer"></span><span class = "voteIcon"></span></td></tr>').hide().appendTo('#connectedPlayers').fadeIn(500);
+            $('#numPlayers').text(++numPlayers);
+            console.log(numPlayers);
+            if(numPlayers >= 5)
+            {
+              $('#startbtn').prop('disabled', false);
+            }
+            console.log("hello");
+        },
+
+        gameStarted : function(data) {
+          players = data.players;
+          quests = data.quests;
+          currentQuest = 1;
+          $('.removeOnStart').css('display', 'none');
+          $('.displayOnStart').css('display', 'block');
+          $('.displayOnStart').css('display', '-webkit-flex');
+          $('.displayOnStart').css('display', 'flex');
+          $('#quest1').addClass('currentQuest');
+          $('#questtext1').addClass('currentQuestText');
+          for(var h = 0; h < quests.length; h++)
+            $('#questtext' + (h+1)).text(quests[h].numberOfPlayers);
+          $('#header').text('Hello');
+          $('#accessCode').text(players[ID].role);
+          var badguys = [];
+          var merlins = [];
+          for(var i = 0; i < players.length; i++)
+          {
+            if(players[i].role == 'Merlin')
+              merlins.push(players[i].name);
+            else if(players[i].role == 'Morgana')
+            {
+              badguys.push(players[i].name);
+              merlins.push(players[i].name);
+            }
+            else if(players[i].role == 'Assassin')
+              badguys.push(players[i].name);
+            else if(players[i].role == 'Generic Bad Guy')
+              badguys.push(players[i].name);
+            if(players[i].lead)
+            {
+              $('#player' + players[i].playerID + ' .leadPlayer').addClass("glyphicon glyphicon-king");
+              leadPlayer = players[i].playerID;
+            }
+          }
+          //console.log("badguys: " + badguys);
+          //console.log("merlins: " + merlins);
+          merlins = shuffle(merlins);
+          badguys = shuffle(badguys);
+
+          //console.log("shuffled badguys: " + badguys);
+          //console.log("shuffled merlins: " + merlins);
+
+          if(badguys.indexOf(players[ID].name) > -1)
+            badguys.splice(badguys.indexOf(players[ID].name), 1);
+          var displayMerlins = merlins[0];
+          var displayBadguys = badguys[0];
+          for(var j = 1; j < merlins.length; j++)
+            displayMerlins += ', ' + merlins[j];
+          for(var k = 1; k < badguys.length; k++)
+            displayBadguys += ', ' + badguys[k];
+          if(players[ID].role == 'Merlin')
+            $('#roleinfo').html('Minions of Mordred: ' + displayBadguys);
+          else if(players[ID].role == 'Percival')
+            $('#roleinfo').html('Appear as Merlin: ' + displayMerlins);
+          else if(players[ID].role == 'Morgana' || players[ID].role == 'Assassin' || players[ID].role == 'Generic Bad Guy')
+          {
+            if(badguys.length > 1)
+              $('#roleinfo').html('Other Minions of Mordred: ' + displayBadguys);
+            else
+              $('#roleinfo').html('Other Minion of Mordred: ' + displayBadguys);
+          }
+
+          if(ID === leadPlayer)
+          {
+            console.log(quests);
+            prepareLead(quests, 1);
+          }
+          else {
+            $('#status').html("Waiting for leader to propose a quest...<br>Current voting track: "+ quests[currentQuest - 1].votingTrack + '/5')
+          }
+        },
+
+        questProposed: function(data)
+        {
+          playersChosen = data.playersChosen;
+          console.log('questProposed received with playersChosen ' + data.playersChosen);
+          quests = data.quests;
+          var displayProposed = players[data.playersChosen[0]].name + ' and ' + players[data.playersChosen[1]].name;
+          for(var i = 2; i < data.playersChosen.length; i++)
+            displayProposed = players[data.playersChosen[i]].name + ', ' + displayProposed;
+          $('#status').text(players[data.lead].name + ' proposed a quest. Current voting track: ' + quests[data.currentQuest - 1].votingTrack + '/5');
+          $('#voteStatus').html(players[data.lead].name + ' proposes that ' + displayProposed + ' go on this quest.');
+          $('.voteStuff').css('display', 'inline');
+          $('.voteIcon').addClass('glyphicon glyphicon-time');
+        },
+
+        voteCounted: function(data)
+        {
+          playersChosen = data.playersChosen;
+          console.log('voteCounted received with players ' + data.players);
+          players = data.players;
+          for(var i = 0; i < players.length; i++)
+          {
+            if(players[i].vote != null)
+            {
+              $('#player' + i +' .voteIcon').removeClass('glyphicon-time');
+            }
+          }
+          if(data.votePassed != null)
+          {
+            for(var i = 0; i < players.length; i++)
+              $('#player' + i +' .voteIcon').addClass((players[i].vote == true) ? 'glyphicon-ok' : 'glyphicon-remove');
+            if(data.votePassed)
+              votePassed(data.playersChosen);
+            else if(data.votePassed == false)
+              voteFailed();
+          }
+        }
+
+
+
+    }
+
+    function prepareLead(quests, questNum) {
+      playersChosen = [];
+      $('.leadStuff').css('display', 'inline');
+      $('#leadinfo').css('display', 'block');
+      var currentQuest = questNum;
+      $('#currentQuest').text('' + questNum);
+      playersNeeded = quests[questNum - 1].numberOfPlayers;
+      $('#questNumPeople').text('' + playersNeeded);
+      console.log("playersNeeded: " + playersNeeded);
+      $('#tableTitle').text("Quest " + questNum + ": Choose " + playersNeeded + " players");
+      $('td').addClass('selectable');
+    }
+
+    function removeLeadUI() {
+      //playersChosen = [];
+      $('.leadStuff').css('display', 'none');
+      $('#leadinfo').css('display', 'none');
+      $('#tableTitle').text("Connected Players: " + players.length);
+      $('.selectable').removeClass('selectable');
+      $('.selected').removeClass('selected');
+    }
+
+    function votePassed(playersChosen) {
+      console.log(playersChosen);
+      $('.voteStuff').css('display', 'none');
+      var displayProposed = players[playersChosen[0]].name + ' and ' + players[playersChosen[1]].name;
+      currentQuest++;
+      for(var i = 2; i < playersChosen.length; i++)
+        displayProposed = players[playersChosen[i]].name + ', ' + displayProposed;
+      $('#status').text("Vote passed. " + displayProposed + " will go on quest " + currentQuest + ".");
+      for(var j = 0; j < playersChosen.length; j++)
+      {
+        if(ID == playersChosen[j])
+          prepareMission();
+      }
+    }
+
+    function prepareMission() {
+      $('.missionStuff').css('display', 'inline-block')
+      if(players[ID].role === 'Percival' || players[ID].role === 'Merlin' || players[ID].role === 'Generic Good Guy')
+      {
+        $('#missionStatus').text("As a Loyal Servant of Arthur, you are only able to play a \"success\" card.");
+        $('#failbtn').prop('disabled', 'true');
+      }
+      else {
+        $('#missionStatus').text("As a Minion of Mordred, you can choose whether to play a \"success\" or \"fail\" card.");
+      }
+    }
+
+    function voteFailed() {
+      $('#status').text("Vote failed.");
+    }
+
+    $('table').on('click', '.selectable', function(event){
+      console.log('selectable clicked');
+      var selectedPlayer;
+      if($(this).hasClass('selected'))
+      {
+        //playersChosen.splice(playersChosen.indexOf(players[ID].name), 1);
+
+        selectedPlayer = parseInt($(this).attr('id').substring(6));
+        if(playersChosen.indexOf(selectedPlayer) > -1)
+          playersChosen.splice(playersChosen.indexOf(selectedPlayer), 1);
+        console.log(playersChosen);
+        $('#proposebtn').prop('disabled', true);
+        updateProposeStatus();
+        $(this).removeClass('selected');
+      }
+      else if(playersChosen.length < playersNeeded)
+      {
+        selectedPlayer = parseInt($(this).attr('id').substring(6));
+        playersChosen.push(selectedPlayer);
+        console.log(playersChosen);
+        if(playersChosen.length == playersNeeded)
+          $('#proposebtn').prop('disabled', false);
+        updateProposeStatus();
+        $(this).addClass('selected');
+      }
+    });
+
+    function updateProposeStatus(){
+      if(playersChosen.length == 0)
+        proposeStatus = "You have not selected anyone to go on this quest.";
+      else if(playersChosen.length == 1)
+        proposeStatus = "You have selected " + idToName(playersChosen[0]) + " to go on this quest.";
+      else if(playersChosen.length == 2)
+        proposeStatus = "You have selected " + idToName(playersChosen[0]) +
+        " and " + idToName(playersChosen[1]) + " to go on this quest.";
+      else if(playersChosen.length == 3)
+        proposeStatus = "You have selected " + idToName(playersChosen[0]) +
+        ", " + idToName(playersChosen[1]) +  " and " + idToName(playersChosen[2]) + " to go on this quest.";
+      else if(playersChosen.length == 4)
+        proposeStatus = "You have selected " + idToName(playersChosen[0]) +
+        ", " + idToName(playersChosen[1]) +
+        ", " + idToName(playersChosen[2]) +
+        " and " + idToName(playersChosen[3]) + " to go on this quest.";
+      else if(playersChosen.length == 5)
+        proposeStatus = "You have selected " + idToName(playersChosen[0]) +
+        ", " + idToName(playersChosen[1]) +
+        ", " + idToName(playersChosen[2]) +
+        ", " + idToName(playersChosen[3]) +
+        " and " + idToName(playersChosen[4]) + " to go on this quest.";
+      $('#proposeStatus').text(proposeStatus);
+    }
+
+    function idToName(ID){
+      for(var i = 0; i < players.length; i++)
+      {
+        if(players[i].playerID == ID)
+        {
+          return players[i].name;
+        }
+      }
+    }
+    /*$('tr').on('click', '.selected', function(event){
+      console.log('selected clicked');
+
+    });*/
+
+    var App = {
+
+    };
+    $('#startbtn').one('click', function(){
+      $('#startbtn').css('display', 'none');
+      IO.socket.emit('hostStartGame', accessCode);
+    });
+
+    $('#proposebtn').one('click', function(){
+      $('#proposebtn').css('display', 'none');
+      removeLeadUI();
+      console.log('proposalSubmitted emitted with playersChosen ' + playersChosen);
+      IO.socket.emit('proposalSubmitted', {"accessCode": accessCode, "lead": ID, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest});
+    });
+
+    $('.votebtn').one('click', function(){
+      $('.votebtn').css('display', 'none');
+      var approve = ($(this).attr('id') === 'approvebtn');
+      players[ID].vote = approve;
+      console.log('voteSubmitted emitted with players ' + players);
+      IO.socket.emit('voteSubmitted', {"accessCode": accessCode, "players": players, "playersChosen": playersChosen});
+    });
+
+    function shuffle(array) {
+      var m = array.length, t, i;
+
+      // While there remain elements to shuffle…
+      while (m) {
+
+        // Pick a remaining element…
+        i = Math.floor(Math.random() * m--);
+
+        // And swap it with the current element.
+        t = array[m];
+        array[m] = array[i];
+        array[i] = t;
+      }
+
+      return array;
+    }
+    IO.init();
+  });
+</script>

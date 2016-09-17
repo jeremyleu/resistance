@@ -1,0 +1,139 @@
+<h1 id = "title">THE RESISTANCE</h1>
+<div id = "titlecontainer" class = "contentcontainer">
+  <button class = "btn btn-lg btn-secondary" id="createbtn">Create</button>
+  <button class = "btn btn-lg btn-secondary" id="joinbtn">Join</button>
+</div>
+
+<div id = "createUI" class = "contentcontainer">
+  <h3 id = "createerror"></h3>
+  <form id = "createRoom" method = "post" action = "/createRoom">
+    <input type = "text" class = "form-control" id="createName" name = "name" placeholder="Enter your name"></input>
+    <input type = "submit" class = "btn btn-lg btn-secondary" id="createroombtn" value = "Create Room"></input>
+  </form>
+  <button class = "btn btn-lg btn-secondary backbtn">Back</button>
+</div>
+
+<div id = "joinUI" class = "contentcontainer">
+  <h3 id = "joinerror">{{joinError}}</h3>
+  <form id = "joinRoom" method = "post" action = "/joinRoom">
+    <input type = "text" class = "form-control" id="accessCode" name = "roomID" placeholder="Enter 4-digit access code"></input>
+    <input type = "text" class = "form-control" id="joinName" name = "name" placeholder="Enter your name"></input>
+    <input type = "submit" class = "btn btn-lg btn-secondary" id="joinroombtn" value = "Join Room"></input>
+  </form>
+  <button class = "btn btn-lg btn-secondary backbtn">Back</button>
+</div>
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script type = "text/javascript">
+  $(function() {
+
+    var IO = {
+
+        /**
+         * This is called when the page is displayed. It connects the Socket.IO client
+         * to the Socket.IO server
+         */
+        init: function() {
+            IO.socket = io.connect();
+            IO.bindEvents();
+        },
+
+        /**
+         * While connected, Socket.IO will listen to the following events emitted
+         * by the Socket.IO server, then run the appropriate function.
+         */
+        bindEvents : function() {
+            //IO.socket.on('connected', IO.onConnected );
+            //IO.socket.on('newGameCreated', IO.onNewGameCreated );
+            //IO.socket.on('playerJoinedRoom', IO.playerJoinedRoom );
+        }
+    }
+    var App = {
+    };
+
+    var state;
+    if($('#joinerror').text().length ==  0)
+    {
+      state = "title";
+      $('#createUI').css('display', 'none');
+      $('#joinUI').css('display', 'none');
+      $('#joinerror').css('display', 'none');
+    }
+    else {
+      state = "join";
+      $('#titlecontainer').css('display', 'none');
+      $('#createUI').css('display', 'none');
+    }
+    $('#createbtn').click(function() {
+      $('#titlecontainer').fadeOut(500, function() {
+          $('#createUI').fadeIn(500);
+      });
+      state = "create";
+    });
+    $('#joinbtn').click(function() {
+      $('#titlecontainer').fadeOut(500, function() {
+          $('#joinUI').fadeIn(500);
+      });
+      state = "join";
+    });
+    $('.backbtn').click(function() {
+      if(state == "create")
+      {
+        $('#createUI').fadeOut(500, function() {
+            $('#titlecontainer').fadeIn(500);
+        });
+      }
+      else {
+        $('#joinUI').fadeOut(500, function() {
+          $('#joinerror').css('display', 'none');
+          $('#titlecontainer').fadeIn(500);
+        });
+      }
+      state = "title";
+    });
+    $('#createroombtn').click(function(event) {
+        if($('#createName').val().trim().length == 0)
+        {
+          event.preventDefault();
+          $('#createerror').text('Please enter a valid name.');
+        }
+        else {
+          IO.socket.emit('hostCreateNewGame');
+          console.log("hostCreateNewGame emitted");
+        }
+    });
+    $('#joinroombtn').click(function(event) {
+        if($('#joinName').val().trim().length == 0)
+        {
+          event.preventDefault();
+          $('#joinerror').text('Please enter a valid name.');
+          $('#joinerror').css('display', 'block');
+        }
+        else {
+          IO.socket.emit('playerJoinGame', {name: $('#joinName').val(), roomID: $('#accessCode').val()});
+        }
+    });
+    IO.init();
+  });
+</script>
+  <!--<script id = "joinError" type = "application/json">
+    {{{ jsonifiedProps.joinError }}}
+  </script>
+  <script>
+    var props = JSON.parse(document.getElementById("props").innerHTML);
+    console.log(props);
+    React.render(TitleContainer(props), document.getElementById('container'));
+  </script>
+  <script src="/app.js" type = "text/babel"></script>
+  <script>
+    $(function() {
+      var error = $('#joinError').html();
+      console.log(error);
+      if(error)
+      {
+        console.log($('#joinbtn').html());
+        $('#joinbtn').click();
+      }
+    });
+  </script>-->
+<!--</body>
+</html>-->

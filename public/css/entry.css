@@ -1,0 +1,166 @@
+*
+{
+	margin:0;
+	padding:0;
+}
+
+html,body{
+	height:100vh;
+	width:100%;
+}
+
+@font-face {
+    font-family: 'Panton';
+    src: url('../fonts/panton-lightcaps-webfont.eot');
+    src: url('../fonts/panton-lightcaps-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/panton-lightcaps-webfont.woff2') format('woff2'),
+         url('../fonts/panton-lightcaps-webfont.woff') format('woff'),
+         url('../fonts/panton-lightcaps-webfont.ttf') format('truetype'),
+         url('../fonts/panton-lightcaps-webfont.svg#pantonlight_caps') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+	font-family:Panton;
+	text-align:center;
+}
+
+#title {
+	font-size:4em;
+	font-weight: lighter;
+}
+
+.subtitle {
+	font-size:2em;
+	font-weight: lighter;
+}
+
+#container {
+	width: 400px;
+	position:absolute;
+	top: 50%;
+	left: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+}
+
+button, .btn{
+	background:none;
+	border: 3px solid #000;
+	margin:10px;
+}
+
+button:disabled{
+	color:#999;
+	background:none;
+	border: 3px solid #999;
+	margin:10px;
+}
+
+.contentcontainer input[type = "text"]{
+	font-size: 1.5em;
+	height: 2.5em;
+	width: 100%;
+	background:none;
+	border: 3px solid #000;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.contentcontainer form{
+	display:inline;
+}
+
+.leadPlayer {
+	float:right;
+}
+
+#leadinfo {
+	width: 100%;
+}
+
+.selectable {
+	cursor: pointer;
+	-webkit-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+  -webkit-transition-property: color, background-color;
+  transition-property: color, background-color;
+}
+.selectable:hover,
+.selectable:focus,
+.selectable:active {
+	background-color: #efefef;
+}
+.selected {
+	background-color: #eee;
+	font-weight: bold;
+	-webkit-transition-property: color, background-color;
+  transition-property: color, background-color;
+}
+.selected:hover,
+.selected:focus,
+.selected:active {
+	background-color: #eee;
+}
+
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+	border-color: #bbb;
+}
+
+.leadStuff{
+	display:none;
+}
+
+#questTrack, #questTextContainer{
+	/*display: -webkit-flex; /* Safari */
+  -webkit-justify-content: space-around; /* Safari 6.1+ */
+  /*display: flex;*/
+  justify-content: space-around;
+}
+
+.questGlyph{
+	font-size: 4em;
+	width: 60px;
+	height: 100%;
+	opacity: 0.1;
+}
+
+.questText{
+	font-size: 3em;
+	opacity: 0.35;
+}
+
+.displayOnStart{
+	display: none;
+}
+
+.currentQuest{
+	opacity: 0.15;
+}
+
+.currentQuestText{
+	opacity: 1;
+}
+
+.voteStuff, .missionStuff{
+	display:none;
+}
+
+td{
+	text-align: right;
+}
+
+td .playerName
+{
+	float: left;
+}
+
+td .glyphicon {
+	margin-left: 5px;
+}
+
+.status {
+	width: 100%;
+}
