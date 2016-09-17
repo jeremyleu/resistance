@@ -164,3 +164,12 @@ td .glyphicon {
 .status {
 	width: 100%;
 }
+
+@media only screen and (max-width: 400px) {
+    #container {
+      width:95%;
+    }
+		.displayOnStart, #connectedPlayers {
+			min-width: 0;
+		}
+}
