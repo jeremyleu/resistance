@@ -27,7 +27,7 @@ body {
 }
 
 #title {
-	font-size:4em;
+	font-size:3.5em;
 	font-weight: lighter;
 }
 
@@ -120,6 +120,23 @@ button:disabled{
   justify-content: space-around;
 }
 
+#cardTrack{
+	display: -webkit-flex; /* Safari */
+  -webkit-justify-content: space-around; /* Safari 6.1+ */
+  display: flex;
+  justify-content: space-around;
+	font-size: 2.5em;
+	width: 80%;
+	margin-top:-5px;
+	margin-bottom: 10px;
+}
+
+#cardTrack span{
+	border: 3px solid #000;
+	border-radius: 10px;
+	padding: 5px;
+}
+
 .questGlyph{
 	font-size: 4em;
 	width: 60px;
@@ -141,6 +158,10 @@ button:disabled{
 }
 
 .currentQuestText{
+	opacity: 1;
+}
+
+.glyphicon-ok-sign, .glyphicon-remove-sign {
 	opacity: 1;
 }
 
@@ -171,5 +192,8 @@ td .glyphicon {
     }
 		.displayOnStart, #connectedPlayers {
 			min-width: 0;
+		}
+		#title {
+			font-size: 3em;
 		}
 }

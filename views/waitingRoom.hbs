@@ -5,11 +5,14 @@
 
 <div id = "roleinfo" class = "status"></div>
 <br>
+<div id = "cardTrack" style="display:none">
+</div>
 <div id = "status" class = "status">
   <div id = "leadinfo" class="leadStuff status">You are the leader. Propose <span id = "questNumPeople"></span> players to go on quest <span id = "currentQuest"></span>.<br></div>
 </div>
 
-<div id = "questTrack" class="displayOnStart" style="width:100%; min-width: 400px; margin-top: 30px; height: 60px">
+<div id = "questTrackText" class = "displayOnStart" style = "margin-top: 15px;">Quest Track:</div>
+<div id = "questTrack" class="displayOnStart" style="width:100%; min-width: 400px; margin-top: 15px; height: 60px">
   <span id = "quest1" class = "glyphicon glyphicon-question-sign questGlyph"></span>
   <span id = "quest2" class = "glyphicon glyphicon-question-sign questGlyph"></span>
   <span id = "quest3" class = "glyphicon glyphicon-question-sign questGlyph"></span>
@@ -67,6 +70,7 @@
     var players;
     var quests;
     var currentQuest;
+    var cardsPlayed = [];
     if(numPlayers >= 5)
     {
       $('#startbtn').prop('disabled', false);
@@ -94,6 +98,7 @@
             IO.socket.on('gameStarted', IO.gameStarted);
             IO.socket.on('questProposed', IO.questProposed);
             IO.socket.on('voteCounted', IO.voteCounted);
+            IO.socket.on('cardCounted', IO.cardCounted);
         },
 
         playerJoinedRoom : function(name) {
@@ -188,6 +193,8 @@
 
         questProposed: function(data)
         {
+          $('#cardTrack').css('display', 'none');
+          $('#cardTrack').empty();
           playersChosen = data.playersChosen;
           console.log('questProposed received with playersChosen ' + data.playersChosen);
           quests = data.quests;
@@ -197,14 +204,17 @@
           $('#status').text(players[data.lead].name + ' proposed a quest. Current voting track: ' + quests[data.currentQuest - 1].votingTrack + '/5');
           $('#voteStatus').html(players[data.lead].name + ' proposes that ' + displayProposed + ' go on this quest.');
           $('.voteStuff').css('display', 'inline');
+          $('.voteIcon').removeClass('glyphicon-ok');
+          $('.voteIcon').removeClass('glyphicon-remove');
           $('.voteIcon').addClass('glyphicon glyphicon-time');
         },
 
         voteCounted: function(data)
         {
           playersChosen = data.playersChosen;
-          console.log('voteCounted received with players ' + data.players);
+          quests = data.quests;
           players = data.players;
+
           for(var i = 0; i < players.length; i++)
           {
             if(players[i].vote != null)
@@ -214,12 +224,77 @@
           }
           if(data.votePassed != null)
           {
+            $('.voteStuff').css('display', 'none');
+            players[leadPlayer].lead = false;
+            $('#player' + leadPlayer + ' .leadPlayer').removeClass("glyphicon glyphicon-king");
+            if(leadPlayer == players.length - 1)
+              leadPlayer = 0;
+            else {
+              leadPlayer++;
+            }
+            players[leadPlayer].lead = true;
             for(var i = 0; i < players.length; i++)
+            {
               $('#player' + i +' .voteIcon').addClass((players[i].vote == true) ? 'glyphicon-ok' : 'glyphicon-remove');
+              players[i].vote = null;
+            }
             if(data.votePassed)
               votePassed(data.playersChosen);
             else if(data.votePassed == false)
               voteFailed();
+          }
+        },
+
+
+        /*
+        io.to('' + room).emit('cardCounted', {
+          players: players,
+          allCardsReceived: allCardsReceived,
+          cardsPlayed: data.cardsPlayed,
+          quests: data.quests,
+          currentQuest: data.currentQuest;
+        });*/
+        cardCounted: function(data)
+        {
+          quests = data.quests;
+          cardsPlayed = data.cardsPlayed;
+          console.log("cardCounted received with cardsPlayed: " + cardsPlayed);
+          if(data.allCardsReceived)
+          {
+
+            var cardTrack = [];
+            for(var i = 0; i < cardsPlayed.length; i++)
+            {
+              if(cardsPlayed[i])
+                cardTrack.push('<span class = "glyphicon glyphicon-ok"></span>')
+              else {
+                cardTrack.push('<span class = "glyphicon glyphicon-remove"></span>')
+              }
+            }
+            cardTrack = shuffle(cardTrack);
+            console.log("cardTrack after shuffle: " + cardTrack);
+            for(var j = 0; j < cardTrack.length; j++)
+              $('#cardTrack').append(cardTrack[j]);
+            $('#cardTrack').css('display', '-webkit-flex');
+            $('#cardTrack').css('display', 'flex');
+            $('.missionStuff').css('display', 'none');
+            $('#quest' + currentQuest).removeClass('glyphicon-question-sign');
+            $('#questtext' + currentQuest).css('opacity', '0');
+            if(quests[currentQuest - 1].success)
+            {
+              $('#quest' + currentQuest).addClass('glyphicon-ok-sign');
+              $('#status').html("Players " + playersChosenToString(playersChosen) + " went on quest " + currentQuest + " and it succeeded.<br>Waiting for leader to propose a quest...<br>Current voting track: "+ quests[currentQuest].votingTrack + '/5');
+            }
+            else {
+              $('#quest' + currentQuest).addClass('glyphicon-remove-sign');
+              $('#status').html("Players " + playersChosenToString(playersChosen) + " went on quest " + currentQuest + " and it failed.<br>Waiting for leader to propose a quest...<br>Current voting track: "+ quests[currentQuest].votingTrack + '/5');
+            }
+            $('#player' + leadPlayer + ' .leadPlayer').addClass("glyphicon glyphicon-king");
+            currentQuest++;
+            $('#quest' + currentQuest).addClass('currentQuest');
+            $('#questtext' + currentQuest).addClass('currentQuestText');
+            if(ID === leadPlayer)
+              prepareLead(quests, currentQuest);
           }
         }
 
@@ -228,6 +303,8 @@
     }
 
     function prepareLead(quests, questNum) {
+      console.log('i am lead');
+      console.dir(quests);
       playersChosen = [];
       $('.leadStuff').css('display', 'inline');
       $('#leadinfo').css('display', 'block');
@@ -252,8 +329,9 @@
     function votePassed(playersChosen) {
       console.log(playersChosen);
       $('.voteStuff').css('display', 'none');
+
+      cardsPlayed = [];
       var displayProposed = players[playersChosen[0]].name + ' and ' + players[playersChosen[1]].name;
-      currentQuest++;
       for(var i = 2; i < playersChosen.length; i++)
         displayProposed = players[playersChosen[i]].name + ', ' + displayProposed;
       $('#status').text("Vote passed. " + displayProposed + " will go on quest " + currentQuest + ".");
@@ -265,7 +343,8 @@
     }
 
     function prepareMission() {
-      $('.missionStuff').css('display', 'inline-block')
+      $('.missionStuff').css('display', 'inline-block');
+      $('.missionbtn').prop('disabled', false);
       if(players[ID].role === 'Percival' || players[ID].role === 'Merlin' || players[ID].role === 'Generic Good Guy')
       {
         $('#missionStatus').text("As a Loyal Servant of Arthur, you are only able to play a \"success\" card.");
@@ -277,7 +356,18 @@
     }
 
     function voteFailed() {
-      $('#status').text("Vote failed.");
+      $('#status').html("Vote failed.<br>Current voting track: "+ quests[currentQuest - 1].votingTrack + '/5');
+      $('#player' + leadPlayer + ' .leadPlayer').addClass("glyphicon glyphicon-king");
+
+      if(ID === leadPlayer)
+      {
+        console.log(quests);
+        prepareLead(quests, 1);
+      }
+      else {
+        $('#status').html("Vote failed. Waiting for leader to propose a quest...<br>Current voting track: "+ quests[currentQuest - 1].votingTrack + '/5');
+      }
+
     }
 
     $('table').on('click', '.selectable', function(event){
@@ -354,19 +444,28 @@
       IO.socket.emit('hostStartGame', accessCode);
     });
 
-    $('#proposebtn').one('click', function(){
+    $('#proposebtn').on('click', function(){
       $('#proposebtn').css('display', 'none');
       removeLeadUI();
       console.log('proposalSubmitted emitted with playersChosen ' + playersChosen);
       IO.socket.emit('proposalSubmitted', {"accessCode": accessCode, "lead": ID, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest});
     });
 
-    $('.votebtn').one('click', function(){
+    $('.votebtn').on('click', function(){
       $('.votebtn').css('display', 'none');
       var approve = ($(this).attr('id') === 'approvebtn');
       players[ID].vote = approve;
       console.log('voteSubmitted emitted with players ' + players);
-      IO.socket.emit('voteSubmitted', {"accessCode": accessCode, "players": players, "playersChosen": playersChosen});
+      IO.socket.emit('voteSubmitted', {"accessCode": accessCode, "players": players, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest});
+    });
+
+    $('.missionbtn').on('click', function(){
+      $(this).prop('disabled', true);
+      $('.missionbtn').css('display', 'none');
+      var success = ($(this).attr('id') === 'successbtn');
+      cardsPlayed.push(success);
+      console.log('cardPlayed emitted with cardsPlayed ' + cardsPlayed);
+      IO.socket.emit('cardPlayed', {"accessCode": accessCode, "cardsPlayed": cardsPlayed, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest});
     });
 
     function shuffle(array) {
@@ -385,6 +484,13 @@
       }
 
       return array;
+    }
+
+    function playersChosenToString(playersChosenArray){
+      var displayProposed = players[playersChosenArray[0]].name + ' and ' + players[playersChosenArray[1]].name;
+      for(var i = 2; i < playersChosenArray.length; i++)
+        displayProposed = players[playersChosenArray[i]].name + ', ' + displayProposed;
+      return displayProposed;
     }
     IO.init();
   });

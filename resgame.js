@@ -22,6 +22,7 @@ exports.initGame = function(sio, socket, application){
     gameSocket.on('hostStartGame', hostStartGame);
     gameSocket.on('proposalSubmitted', proposalSubmitted);
     gameSocket.on('voteSubmitted', voteSubmitted);
+    gameSocket.on('cardPlayed', cardPlayed);
     /*gameSocket.on('hostRoomFull', hostPrepareGame);
     gameSocket.on('hostNextRound', hostNextRound);
 
@@ -138,7 +139,6 @@ function proposalSubmitted(data) {
   {
     console.log(data.currentQuest);
     console.log(data.quests);
-    data.quests[data.currentQuest - 1].votingTrack++;
     console.log('questProposed submitted with playersChosen ' + stuff.playersChosen);
     io.to('' + room).emit('questProposed', {playersChosen: stuff.playersChosen,
       quests: stuff.quests,
@@ -173,17 +173,65 @@ function voteSubmitted(data) {
     }
 
     if(voteComplete)
+    {
       votePassed = (approve > 0);
-
+      if(!votePassed)
+      {
+        data.quests[data.currentQuest - 1].votingTrack++;
+        if(data.quests[data.currentQuest - 1].votingTrack == 5)
+        {
+          endGame(room, players, quests, "Five proposals were rejected for this quest.");
+        }
+      }
+    }
 
     console.log('voteCounted submitted with playersChosen ' + stuff.playersChosen);
     io.to('' + room).emit('voteCounted', {playersChosen: stuff.playersChosen,
       players: players,
-      votePassed: votePassed
+      votePassed: votePassed,
+      quests: data.quests
     });
 
   }
 }
+//IO.socket.emit('cardPlayed', {"accessCode": accessCode, "cardsPlayed": cardsPlayed, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest});
+
+  function cardPlayed(data) {
+    var room = data.accessCode - 1000;
+    var stuff = data;
+    if(this.handshake.session.room == room)
+    {
+
+      console.log(stuff.currentQuest);
+      var failCount = 0;
+      var allCardsReceived = data.cardsPlayed.length == data.playersChosen.length;
+
+      if(allCardsReceived)
+      {
+        for(var i = 0; i < data.cardsPlayed.length; i++)
+        {
+          if(data.cardsPlayed[i] === false)
+            failCount++;
+        }
+        data.quests[data.currentQuest - 1].success = (failCount < data.quests[data.currentQuest - 1].failsRequired);
+        //data.cardsPlayed = [];
+      }
+
+      console.log('cardCounted submitted with cardsPlayed ' + data.cardsPlayed);
+      io.to('' + room).emit('cardCounted', {
+        allCardsReceived: allCardsReceived,
+        cardsPlayed: data.cardsPlayed,
+        quests: data.quests,
+        currentQuest: data.currentQuest
+      });
+
+    }
+  }
+
+  function endGame(room, players, quests, reason){
+
+  }
+
 
 function assignRolesAndQuests(numPlayers) {
   var roles, quest1, quest2, quest3, quest4, quest5;
