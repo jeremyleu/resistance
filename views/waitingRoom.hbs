@@ -58,7 +58,7 @@
 <button id = "successbtn" class = "btn btn-lg btn-secondary missionStuff missionbtn">Success</button>
 <button id = "failbtn" class = "btn btn-lg btn-secondary missionStuff missionbtn">Fail</button>
 <button id = "assassinatebtn" class = "btn btn-lg btn-secondary" style="display:none">Assassinate</button>
-<button id = "homebtn" class = "btn btn-lg btn-secondary" style="display:none">Back to homepage</button>
+<a href = "/" id = "homebtn" class = "btn btn-lg btn-secondary" style="display:none">Back to homepage</a>
 
 <script id = "ID">
   {{ID}}
@@ -429,7 +429,7 @@
       if(ID === leadPlayer)
       {
         //console.log(quests);
-        prepareLead(quests, 1);
+        prepareLead(quests, currentQuest);
       }
       else {
         $('#status').html("Vote failed. Waiting for leader to propose a quest...<br>Current voting track: "+ quests[currentQuest - 1].votingTrack + '/5');
@@ -603,6 +603,8 @@
       //console.log('assassinate emitted with assassinSelected ' + assassinSelected);
       IO.socket.emit('assassinate', {"accessCode": accessCode, "assassinSelected": assassinSelected, "players": players});
     });
+
+
 
     function shuffle(array) {
       var m = array.length, t, i;
