@@ -340,7 +340,7 @@
           }
           if(data.goodGuysWin)
           {
-            $('#status').html("Assassin " + assassin + " assassinated " + data.target + ", who was not Merlin. <br>" + merlin + " was Merlin. <br>Good guys win!");
+            $('#status').html("Assassin " + assassin + " assassinated " + players[data.target].name + ", who was not Merlin. <br>" + merlin + " was Merlin. <br>Good guys win!");
             if(players[ID].role == 'Morgana' || players[ID].role == 'Assassin' || players[ID].role == 'Generic Bad Guy')
               $('#accessCode').text("You lose!");
             else {
