@@ -38,7 +38,7 @@
   {{#each players}}
   <tr>
     <td id = "{{{IDString}}}">
-      <span class = "playerName">{{name}}</span><span class = "leadPlayer"></span><span class = "voteIcon"></span>
+      <span class = "playerName">{{name}}</span><span class = "leadPlayer"></span><span class = "voteIcon"></span><span class = "missionIcon"></span>
     </td>
   </tr>
   {{/each}}
@@ -116,7 +116,7 @@
             //
             // So on the 'host' browser window, the App.Host.updateWiatingScreen function is called.
             // And on the player's browser, App.Player.updateWaitingScreen is called.
-            $('<tr><td id = player' + numPlayers+ '><span class = "playerName">' + name + '</span><span class = "leadPlayer"></span><span class = "voteIcon"></span></td></tr>').hide().appendTo('#connectedPlayers').fadeIn(500);
+            $('<tr><td id = player' + numPlayers+ '><span class = "playerName">' + name + '</span><span class = "leadPlayer"></span><span class = "voteIcon"></span><span class = "missionIcon"></span></td></tr>').hide().appendTo('#connectedPlayers').fadeIn(500);
             $('#numPlayers').text(++numPlayers);
             //console.log(numPlayers);
             if(numPlayers >= 5)
@@ -268,6 +268,7 @@
         {
           quests = data.quests;
           cardsPlayed = data.cardsPlayed;
+          $('#player' + data.player + ' .missionIcon').removeClass('glyphicon glyphicon-time');
           if(data.gameEndReason)
             endGame(data.gameEndReason);
           //console.log("cardCounted received with cardsPlayed: " + cardsPlayed);
@@ -355,7 +356,7 @@
             }
           }
 
-          $('#homebtn').css('display', 'block');
+          $('#homebtn').css('display', 'inline-block');
           IO.socket.emit('gameEnd', accessCode);
         }
 
@@ -368,6 +369,8 @@
       //console.dir(quests);
       playersChosen = [];
       $('.leadStuff').css('display', 'inline');
+      $('#proposebtn').prop('disabled', 'true');
+      $('#proposeStatus').html("You have not selected anyone to go on this quest.");
       $('#leadinfo').css('display', 'block');
       var currentQuest = questNum;
       $('#currentQuest').text('' + questNum);
@@ -390,7 +393,6 @@
     function votePassed(playersChosen) {
       //console.log(playersChosen);
       $('.voteStuff').css('display', 'none');
-
       cardsPlayed = [];
       var displayProposed = players[playersChosen[0]].name + ' and ' + players[playersChosen[1]].name;
       for(var i = 2; i < playersChosen.length; i++)
@@ -398,6 +400,7 @@
       $('#status').text("Vote passed. " + displayProposed + " will go on quest " + currentQuest + ".");
       for(var j = 0; j < playersChosen.length; j++)
       {
+        $('#player' + playersChosen[j] + ' .missionIcon').addClass('glyphicon glyphicon-time');
         if(ID == playersChosen[j])
           prepareMission();
       }
@@ -556,7 +559,7 @@
         else {
           $('#accessCode').text("You lose!");
         }
-        $('#homebtn').css('display', 'block');
+        $('#homebtn').css('display', 'inline-block');
         IO.socket.emit('gameEnd', accessCode);
       }
     }
@@ -583,18 +586,18 @@
     $('.votebtn').on('click', function(){
       $('.votebtn').css('display', 'none');
       var approve = ($(this).attr('id') === 'approvebtn');
-      players[ID].vote = approve;
+      //players[ID].vote = approve;
       //console.log('voteSubmitted emitted with players ' + players);
-      IO.socket.emit('voteSubmitted', {"accessCode": accessCode, "players": players, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest});
+      IO.socket.emit('voteSubmitted', {"accessCode": accessCode, "voter": ID, "vote": approve, "players": players, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest});
     });
 
     $('.missionbtn').on('click', function(){
       $(this).prop('disabled', true);
       $('.missionbtn').css('display', 'none');
       var success = ($(this).attr('id') === 'successbtn');
-      cardsPlayed.push(success);
+      //cardsPlayed.push(success);
       //console.log('cardPlayed emitted with cardsPlayed ' + cardsPlayed);
-      IO.socket.emit('cardPlayed', {"accessCode": accessCode, "cardsPlayed": cardsPlayed, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest});
+      IO.socket.emit('cardPlayed', {"accessCode": accessCode, "player": ID, "cardPlayed": success, "cardsPlayed": cardsPlayed, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest});
     });
 
     $('#assassinatebtn').on('click', function(){

@@ -157,20 +157,27 @@ function voteSubmitted(data) {
   var stuff = data;
   if(this.handshake.session.room == room)
   {
-    var players = stuff.players;
-    console.log(stuff.players);
+    //var players = stuff.players;
+    console.log(app.locals.rooms[room].players);
+    for(var j = 0; j < app.locals.rooms[room].players.length; j++)
+    {
+      if(stuff.voter === j)
+      {
+        app.locals.rooms[room].players[j].vote = stuff.vote;
+      }
+    }
     console.log(stuff.playersChosen);
     var approve = 0;
     var voteComplete = true;
     var votePassed = null;
-    for(var i = 0; i < players.length; i++)
+    for(var i = 0; i < app.locals.rooms[room].players.length; i++)
     {
-      if(players[i].vote == null)
+      if(app.locals.rooms[room].players[i].vote == null)
       {
         voteComplete = false;
         break;
       }
-      approve += (players[i].vote === true) ? 1 : -1;
+      approve += (app.locals.rooms[room].players[i].vote === true) ? 1 : -1;
       console.log(approve);
     }
 
@@ -189,11 +196,15 @@ function voteSubmitted(data) {
 
     console.log('voteCounted submitted with playersChosen ' + stuff.playersChosen);
     io.to('' + room).emit('voteCounted', {playersChosen: stuff.playersChosen,
-      players: players,
+      players: app.locals.rooms[room].players,
       votePassed: votePassed,
       quests: data.quests
     });
-
+    if(votePassed != null)
+    {
+      for(var k = 0; k < app.locals.rooms[room].players.length; k++)
+        app.locals.rooms[room].players[k].vote = null;
+    }
   }
 }
 //IO.socket.emit('cardPlayed', {"accessCode": accessCode, "cardsPlayed": cardsPlayed, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest});
@@ -204,16 +215,16 @@ function voteSubmitted(data) {
     var gameEndReason = null;
     if(this.handshake.session.room == room)
     {
-
+      app.locals.rooms[room].cardsPlayed.push(data.cardPlayed);
       console.log(stuff.currentQuest);
       var failCount = 0;
-      var allCardsReceived = data.cardsPlayed.length == data.playersChosen.length;
+      var allCardsReceived = app.locals.rooms[room].cardsPlayed.length == data.playersChosen.length;
 
       if(allCardsReceived)
       {
-        for(var i = 0; i < data.cardsPlayed.length; i++)
+        for(var i = 0; i < app.locals.rooms[room].cardsPlayed.length; i++)
         {
-          if(data.cardsPlayed[i] === false)
+          if(app.locals.rooms[room].cardsPlayed[i] === false)
             failCount++;
         }
         data.quests[data.currentQuest - 1].success = (failCount < data.quests[data.currentQuest - 1].failsRequired);
@@ -235,14 +246,18 @@ function voteSubmitted(data) {
           gameEndReason = "Three quests have failed. Bad guys win!";
       }
 
-      console.log('cardCounted submitted with cardsPlayed ' + data.cardsPlayed);
+      console.log('cardCounted submitted with cardsPlayed ' + app.locals.rooms[room].cardsPlayed);
       io.to('' + room).emit('cardCounted', {
         allCardsReceived: allCardsReceived,
-        cardsPlayed: data.cardsPlayed,
+        cardsPlayed: app.locals.rooms[room].cardsPlayed,
+        player: data.player,
         quests: data.quests,
         currentQuest: data.currentQuest,
         gameEndReason: gameEndReason
       });
+
+      if(allCardsReceived)
+        app.locals.rooms[room].cardsPlayed = [];
 
     }
   }

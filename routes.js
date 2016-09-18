@@ -26,6 +26,7 @@ module.exports = function (app) {
       "lead": null,
       "vote": null
       }],
+      "cardsPlayed": [],
       "open": true
     };
     //gameSocket.join('' + room);

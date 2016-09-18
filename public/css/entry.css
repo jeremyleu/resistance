@@ -44,6 +44,8 @@ body {
 	-webkit-transform: translate(-50%, -50%);
 	-ms-transform: translate(-50%, -50%);
 	transform: translate(-50%, -50%);
+	padding-top: 10%;
+	padding-bottom: 10%;
 }
 
 button, .btn{
@@ -190,6 +192,17 @@ td .glyphicon {
 
 .status {
 	width: 100%;
+}
+
+#twoFailsNote {
+	margin-top: 15px;
+}
+
+#homebtn,
+#homebtn:focus,
+#homebtn:active,
+#homebtn:hover {
+	color: #000;
 }
 
 @media only screen and (max-width: 400px) {
