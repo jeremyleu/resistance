@@ -81,7 +81,7 @@ button:disabled{
 	width: 100%;
 }
 
-.selectable {
+.selectable, .assassinSelectable {
 	cursor: pointer;
 	-webkit-transition-duration: 0.3s;
   transition-duration: 0.3s;
@@ -90,10 +90,13 @@ button:disabled{
 }
 .selectable:hover,
 .selectable:focus,
-.selectable:active {
+.selectable:active,
+.assassinSelectable:hover,
+.assassinSelectable:focus,
+.assassinSelectable:active {
 	background-color: #efefef;
 }
-.selected {
+.selected, .assassinSelected {
 	background-color: #eee;
 	font-weight: bold;
 	-webkit-transition-property: color, background-color;
@@ -101,7 +104,10 @@ button:disabled{
 }
 .selected:hover,
 .selected:focus,
-.selected:active {
+.selected:active,
+.assassinSelected:hover,
+.assassinSelected:focus,
+.assassinSelected:active{
 	background-color: #eee;
 }
 

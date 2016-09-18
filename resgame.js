@@ -23,6 +23,8 @@ exports.initGame = function(sio, socket, application){
     gameSocket.on('proposalSubmitted', proposalSubmitted);
     gameSocket.on('voteSubmitted', voteSubmitted);
     gameSocket.on('cardPlayed', cardPlayed);
+    gameSocket.on('gameEnd', gameEnd);
+    gameSocket.on('assassinate', assassinate);
     /*gameSocket.on('hostRoomFull', hostPrepareGame);
     gameSocket.on('hostNextRound', hostNextRound);
 
@@ -180,7 +182,7 @@ function voteSubmitted(data) {
         data.quests[data.currentQuest - 1].votingTrack++;
         if(data.quests[data.currentQuest - 1].votingTrack == 5)
         {
-          endGame(room, players, quests, "Five proposals were rejected for this quest.");
+          io.to('' + room).emit('votingTrackGameEnd');
         }
       }
     }
@@ -199,6 +201,7 @@ function voteSubmitted(data) {
   function cardPlayed(data) {
     var room = data.accessCode - 1000;
     var stuff = data;
+    var gameEndReason = null;
     if(this.handshake.session.room == room)
     {
 
@@ -215,6 +218,21 @@ function voteSubmitted(data) {
         }
         data.quests[data.currentQuest - 1].success = (failCount < data.quests[data.currentQuest - 1].failsRequired);
         //data.cardsPlayed = [];
+        var success = 0;
+        var fail = 0;
+        for(var j = 0; j < data.quests.length && data.quests[j].success != null; j ++)
+        {
+          if(data.quests[j].success)
+            success++;
+          else if(!data.quests[j].success)
+            fail++;
+        }
+        if(success >= 3)
+        {
+          gameEndReason = "Three quests have succeeded. Waiting on Assassin to guess Merlin...";
+        }
+        else if(fail >= 3)
+          gameEndReason = "Three quests have failed. Bad guys win!";
       }
 
       console.log('cardCounted submitted with cardsPlayed ' + data.cardsPlayed);
@@ -222,14 +240,28 @@ function voteSubmitted(data) {
         allCardsReceived: allCardsReceived,
         cardsPlayed: data.cardsPlayed,
         quests: data.quests,
-        currentQuest: data.currentQuest
+        currentQuest: data.currentQuest,
+        gameEndReason: gameEndReason
       });
 
     }
   }
 
-  function endGame(room, players, quests, reason){
+  function assassinate(data) {
+    var room = data.accessCode - 1000;
+    var goodGuysWin;
+    var players = data.players;
+    if(this.handshake.session.room == room)
+    {
+      goodGuysWin = (players[data.assassinSelected].role != 'Merlin');
+      console.log("Do good guys win? " + goodGuysWin);
+      io.to('' + room).emit('assassinationComplete', {target: data.assassinSelected, goodGuysWin: goodGuysWin});
+    }
+  }
 
+  function gameEnd(accessCode) {
+    var room = accessCode - 1000;
+    app.locals.rooms[room] = null;
   }
 
 

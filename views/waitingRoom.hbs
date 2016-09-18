@@ -26,6 +26,9 @@
   <span id = "questtext4" class = "questText">2</span>
   <span id = "questtext5" class = "questText">2</span>
 </div>
+<div id = "twoFailsNote" style="display: none; margin-bottom: 10px;">
+  Note: To fail quest 4, bad guys must play two fail cards!
+</div>
 <table class = "table" id = "connectedPlayers" style="width:100%; min-width: 400px; margin-top: 30px;">
   <thead>
     <tr>
@@ -47,12 +50,15 @@
 <div id = "proposeStatus" class = "status leadStuff"></div>
 <div id = "voteStatus" class = "status voteStuff"></div>
 <div id = "missionStatus" class = "status missionStuff"></div>
+<div id = "assassinateStatus" class = "status" style="display:none">You have not yet selected a target to assassinate.</div>
 <br><br>
 <button id = "proposebtn" class = "btn btn-lg btn-secondary leadStuff" disabled>Submit</button>
 <button id = "approvebtn" class = "btn btn-lg btn-secondary voteStuff votebtn">Approve</button>
 <button id = "rejectbtn" class = "btn btn-lg btn-secondary voteStuff votebtn">Reject</button>
 <button id = "successbtn" class = "btn btn-lg btn-secondary missionStuff missionbtn">Success</button>
 <button id = "failbtn" class = "btn btn-lg btn-secondary missionStuff missionbtn">Fail</button>
+<button id = "assassinatebtn" class = "btn btn-lg btn-secondary" style="display:none">Assassinate</button>
+<button id = "homebtn" class = "btn btn-lg btn-secondary" style="display:none">Back to homepage</button>
 
 <script id = "ID">
   {{ID}}
@@ -99,6 +105,8 @@
             IO.socket.on('questProposed', IO.questProposed);
             IO.socket.on('voteCounted', IO.voteCounted);
             IO.socket.on('cardCounted', IO.cardCounted);
+            IO.socket.on('votingTrackGameEnd', IO.votingTrackGameEnd);
+            IO.socket.on('assassinationComplete', IO.assassinationComplete);
         },
 
         playerJoinedRoom : function(name) {
@@ -110,17 +118,19 @@
             // And on the player's browser, App.Player.updateWaitingScreen is called.
             $('<tr><td id = player' + numPlayers+ '><span class = "playerName">' + name + '</span><span class = "leadPlayer"></span><span class = "voteIcon"></span></td></tr>').hide().appendTo('#connectedPlayers').fadeIn(500);
             $('#numPlayers').text(++numPlayers);
-            console.log(numPlayers);
+            //console.log(numPlayers);
             if(numPlayers >= 5)
             {
               $('#startbtn').prop('disabled', false);
             }
-            console.log("hello");
+            //console.log("hello");
         },
 
         gameStarted : function(data) {
           players = data.players;
           quests = data.quests;
+          if(players.length >= 7)
+            $('#twoFailsNote').css('display', 'block')
           currentQuest = 1;
           $('.removeOnStart').css('display', 'none');
           $('.displayOnStart').css('display', 'block');
@@ -153,13 +163,13 @@
               leadPlayer = players[i].playerID;
             }
           }
-          //console.log("badguys: " + badguys);
-          //console.log("merlins: " + merlins);
+          ////console.log("badguys: " + badguys);
+          ////console.log("merlins: " + merlins);
           merlins = shuffle(merlins);
           badguys = shuffle(badguys);
 
-          //console.log("shuffled badguys: " + badguys);
-          //console.log("shuffled merlins: " + merlins);
+          ////console.log("shuffled badguys: " + badguys);
+          ////console.log("shuffled merlins: " + merlins);
 
           if(badguys.indexOf(players[ID].name) > -1)
             badguys.splice(badguys.indexOf(players[ID].name), 1);
@@ -183,7 +193,7 @@
 
           if(ID === leadPlayer)
           {
-            console.log(quests);
+            //console.log(quests);
             prepareLead(quests, 1);
           }
           else {
@@ -196,7 +206,7 @@
           $('#cardTrack').css('display', 'none');
           $('#cardTrack').empty();
           playersChosen = data.playersChosen;
-          console.log('questProposed received with playersChosen ' + data.playersChosen);
+          //console.log('questProposed received with playersChosen ' + data.playersChosen);
           quests = data.quests;
           var displayProposed = players[data.playersChosen[0]].name + ' and ' + players[data.playersChosen[1]].name;
           for(var i = 2; i < data.playersChosen.length; i++)
@@ -258,7 +268,9 @@
         {
           quests = data.quests;
           cardsPlayed = data.cardsPlayed;
-          console.log("cardCounted received with cardsPlayed: " + cardsPlayed);
+          if(data.gameEndReason)
+            endGame(data.gameEndReason);
+          //console.log("cardCounted received with cardsPlayed: " + cardsPlayed);
           if(data.allCardsReceived)
           {
 
@@ -272,7 +284,7 @@
               }
             }
             cardTrack = shuffle(cardTrack);
-            console.log("cardTrack after shuffle: " + cardTrack);
+            //console.log("cardTrack after shuffle: " + cardTrack);
             for(var j = 0; j < cardTrack.length; j++)
               $('#cardTrack').append(cardTrack[j]);
             $('#cardTrack').css('display', '-webkit-flex');
@@ -283,19 +295,68 @@
             if(quests[currentQuest - 1].success)
             {
               $('#quest' + currentQuest).addClass('glyphicon-ok-sign');
-              $('#status').html("Players " + playersChosenToString(playersChosen) + " went on quest " + currentQuest + " and it succeeded.<br>Waiting for leader to propose a quest...<br>Current voting track: "+ quests[currentQuest].votingTrack + '/5');
+              if(data.gameEndReason == null)
+                $('#status').html(playersChosenToString(playersChosen) + " went on quest " + currentQuest + " and it succeeded.<br>Waiting for leader to propose a quest...<br>Current voting track: "+ quests[currentQuest].votingTrack + '/5');
+              else {
+                $('#status').html(playersChosenToString(playersChosen) + " went on quest " + currentQuest + " and it succeeded.<br>" + data.gameEndReason);
+              }
             }
             else {
               $('#quest' + currentQuest).addClass('glyphicon-remove-sign');
-              $('#status').html("Players " + playersChosenToString(playersChosen) + " went on quest " + currentQuest + " and it failed.<br>Waiting for leader to propose a quest...<br>Current voting track: "+ quests[currentQuest].votingTrack + '/5');
+              if(data.gameEndReason == null)
+                $('#status').html(playersChosenToString(playersChosen) + " went on quest " + currentQuest + " and it failed.<br>Waiting for leader to propose a quest...<br>Current voting track: "+ quests[currentQuest].votingTrack + '/5');
+              else {
+                $('#status').html(playersChosenToString(playersChosen) + " went on quest " + currentQuest + " and it failed.<br>" + data.gameEndReason);
+              }
             }
-            $('#player' + leadPlayer + ' .leadPlayer').addClass("glyphicon glyphicon-king");
-            currentQuest++;
-            $('#quest' + currentQuest).addClass('currentQuest');
-            $('#questtext' + currentQuest).addClass('currentQuestText');
-            if(ID === leadPlayer)
-              prepareLead(quests, currentQuest);
+            if(data.gameEndReason == null)
+            {
+              $('#player' + leadPlayer + ' .leadPlayer').addClass("glyphicon glyphicon-king");
+              currentQuest++;
+              $('#quest' + currentQuest).addClass('currentQuest');
+              $('#questtext' + currentQuest).addClass('currentQuestText');
+              if(ID === leadPlayer)
+                prepareLead(quests, currentQuest);
+            }
           }
+        },
+
+        votingTrackGameEnd: function(){
+          endGame("Five quest proposals were rejected. Bad guys win!");
+        },
+
+        assassinationComplete: function(data){
+          $('#header').text("Game over");
+          $('#voteTrack').css('display', 'none');
+          var merlin;
+          var assassin;
+          for(var i = 0; i < players.length; i++)
+          {
+            if(players[i].role == 'Merlin')
+              merlin = players[i].name;
+            else if(players[i].role == 'Assassin')
+              assassin = players[i].name;
+          }
+          if(data.goodGuysWin)
+          {
+            $('#status').html("Assassin " + assassin + " assassinated " + data.target + ", who was not Merlin. <br>" + merlin + " was Merlin. <br>Good guys win!");
+            if(players[ID].role == 'Morgana' || players[ID].role == 'Assassin' || players[ID].role == 'Generic Bad Guy')
+              $('#accessCode').text("You lose!");
+            else {
+              $('#accessCode').text("You win!");
+            }
+          }
+          else{
+            $('#status').html("Assassin " + assassin + " assassinated " + merlin + ", who was Merlin. <br>Bad guys win!");
+            if(players[ID].role == 'Morgana' || players[ID].role == 'Assassin' || players[ID].role == 'Generic Bad Guy')
+              $('#accessCode').text("You win!");
+            else {
+              $('#accessCode').text("You lose!");
+            }
+          }
+
+          $('#homebtn').css('display', 'block');
+          IO.socket.emit('gameEnd', accessCode);
         }
 
 
@@ -303,8 +364,8 @@
     }
 
     function prepareLead(quests, questNum) {
-      console.log('i am lead');
-      console.dir(quests);
+      ////console.log('i am lead');
+      //console.dir(quests);
       playersChosen = [];
       $('.leadStuff').css('display', 'inline');
       $('#leadinfo').css('display', 'block');
@@ -312,7 +373,7 @@
       $('#currentQuest').text('' + questNum);
       playersNeeded = quests[questNum - 1].numberOfPlayers;
       $('#questNumPeople').text('' + playersNeeded);
-      console.log("playersNeeded: " + playersNeeded);
+      ////console.log("playersNeeded: " + playersNeeded);
       $('#tableTitle').text("Quest " + questNum + ": Choose " + playersNeeded + " players");
       $('td').addClass('selectable');
     }
@@ -327,7 +388,7 @@
     }
 
     function votePassed(playersChosen) {
-      console.log(playersChosen);
+      //console.log(playersChosen);
       $('.voteStuff').css('display', 'none');
 
       cardsPlayed = [];
@@ -355,13 +416,19 @@
       }
     }
 
+    function prepareAssassination() {
+      $('#tableTitle').text("Who do you think is Merlin?");
+      $('#assassinatebtn').css('display', 'inline-block');
+      $('td').addClass('assassinSelectable');
+    }
+
     function voteFailed() {
       $('#status').html("Vote failed.<br>Current voting track: "+ quests[currentQuest - 1].votingTrack + '/5');
       $('#player' + leadPlayer + ' .leadPlayer').addClass("glyphicon glyphicon-king");
 
       if(ID === leadPlayer)
       {
-        console.log(quests);
+        //console.log(quests);
         prepareLead(quests, 1);
       }
       else {
@@ -371,7 +438,7 @@
     }
 
     $('table').on('click', '.selectable', function(event){
-      console.log('selectable clicked');
+      //console.log('selectable clicked');
       var selectedPlayer;
       if($(this).hasClass('selected'))
       {
@@ -380,7 +447,7 @@
         selectedPlayer = parseInt($(this).attr('id').substring(6));
         if(playersChosen.indexOf(selectedPlayer) > -1)
           playersChosen.splice(playersChosen.indexOf(selectedPlayer), 1);
-        console.log(playersChosen);
+        //console.log(playersChosen);
         $('#proposebtn').prop('disabled', true);
         updateProposeStatus();
         $(this).removeClass('selected');
@@ -389,11 +456,32 @@
       {
         selectedPlayer = parseInt($(this).attr('id').substring(6));
         playersChosen.push(selectedPlayer);
-        console.log(playersChosen);
+        //console.log(playersChosen);
         if(playersChosen.length == playersNeeded)
           $('#proposebtn').prop('disabled', false);
         updateProposeStatus();
         $(this).addClass('selected');
+      }
+    });
+
+    $('table').on('click', '.assassinSelectable', function(event){
+      //console.log('assassinSelectable clicked');
+      var selectedPlayer = null;
+      if($(this).hasClass('assassinSelected'))
+      {
+        //playersChosen.splice(playersChosen.indexOf(players[ID].name), 1);
+
+        selectedPlayer = null;
+        $('#assassinatebtn').prop('disabled', true);
+        updateAssassinateStatus(selectedPlayer);
+        $(this).removeClass('assassinSelected');
+      }
+      else if(selectedPlayer == null)
+      {
+        selectedPlayer = parseInt($(this).attr('id').substring(6));
+        $('#assassinate').prop('disabled', false);
+        updateAssassinateStatus(selectedPlayer);
+        $(this).addClass('assassinSelected');
       }
     });
 
@@ -422,6 +510,16 @@
       $('#proposeStatus').text(proposeStatus);
     }
 
+    function updateAssassinateStatus(selectedPlayer){
+      var assassinateStatus;
+      if(selectedPlayer == null)
+        assassinateStatus = "You have not selected anyone to assassinate.";
+      else {
+        assassinateStatus = "You have selected "+ selectedPlayer +" to assassinate.";
+      }
+      $('#assassinateStatus').text(assassinateStatus);
+    }
+
     function idToName(ID){
       for(var i = 0; i < players.length; i++)
       {
@@ -431,8 +529,39 @@
         }
       }
     }
+
+    function endGame(gameEndReason)
+    {
+      $('#status').text(gameEndReason);
+      $('.voteIcon').removeClass('glyphicon-ok');
+      $('.voteIcon').removeClass('glyphicon-remove');
+      if(gameEndReason == "Three quests have succeeded. Waiting on Assassin to guess Merlin...")
+      {
+        var assassinID;
+        for(var i = 0; i < players.length; i++)
+        {
+          if(players[i].role == 'Assassin')
+            assassinID = i;
+        }
+        $('.voteIcon #player' + assassinID).addClass('glyphicon-time');
+        if(players[ID].role === 'Assassin')
+        {
+          prepareAssassination();
+        }
+      }
+      else {
+        $('#header').text("Game over");
+        if(players[ID].role == 'Morgana' || players[ID].role == 'Assassin' || players[ID].role == 'Generic Bad Guy')
+          $('#accessCode').text("You win!");
+        else {
+          $('#accessCode').text("You lose!");
+        }
+        $('#homebtn').css('display', 'block');
+        IO.socket.emit('gameEnd', accessCode);
+      }
+    }
     /*$('tr').on('click', '.selected', function(event){
-      console.log('selected clicked');
+      //console.log('selected clicked');
 
     });*/
 
@@ -447,7 +576,7 @@
     $('#proposebtn').on('click', function(){
       $('#proposebtn').css('display', 'none');
       removeLeadUI();
-      console.log('proposalSubmitted emitted with playersChosen ' + playersChosen);
+      //console.log('proposalSubmitted emitted with playersChosen ' + playersChosen);
       IO.socket.emit('proposalSubmitted', {"accessCode": accessCode, "lead": ID, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest});
     });
 
@@ -455,7 +584,7 @@
       $('.votebtn').css('display', 'none');
       var approve = ($(this).attr('id') === 'approvebtn');
       players[ID].vote = approve;
-      console.log('voteSubmitted emitted with players ' + players);
+      //console.log('voteSubmitted emitted with players ' + players);
       IO.socket.emit('voteSubmitted', {"accessCode": accessCode, "players": players, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest});
     });
 
@@ -464,8 +593,15 @@
       $('.missionbtn').css('display', 'none');
       var success = ($(this).attr('id') === 'successbtn');
       cardsPlayed.push(success);
-      console.log('cardPlayed emitted with cardsPlayed ' + cardsPlayed);
+      //console.log('cardPlayed emitted with cardsPlayed ' + cardsPlayed);
       IO.socket.emit('cardPlayed', {"accessCode": accessCode, "cardsPlayed": cardsPlayed, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest});
+    });
+
+    $('#assassinatebtn').on('click', function(){
+      $(this).css('display', 'none');
+      var assassinSelected = $('.assassinSelected').attr('id').substring(6);
+      //console.log('assassinate emitted with assassinSelected ' + assassinSelected);
+      IO.socket.emit('assassinate', {"accessCode": accessCode, "assassinSelected": assassinSelected, "players": players});
     });
 
     function shuffle(array) {
