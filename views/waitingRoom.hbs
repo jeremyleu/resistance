@@ -153,6 +153,7 @@
         },
 
         gameStarted : function(data) {
+          checkPlayerList(data.players);
           players = data.players;
           quests = data.quests;
           if(players.length >= 7)
@@ -388,6 +389,21 @@
 
 
 
+    }
+
+    function checkPlayerList(playerList) {
+      for(var i = 0; i < playerList.length; i++)
+      {
+        if($('#player' + i).length === 0)
+        {
+          //console.log('xxx');
+          $('<tr><td id = player' + i + ' valign = "middle"><span class = "playerName">' + playerList[i].name + '</span><span class = "leadPlayer"></span><span class = "voteIcon"></span><span class = "missionIcon"></span></td></tr>').hide().appendTo('#connectedPlayers').fadeIn(500);
+        }
+        else if($('#player' + i + ' .playerName').text() != playerList[i].name)
+          $('#player' + i + ' .playerName').text(playerList[i].name);
+      }
+      numPlayers = playerList.length;
+      $('#numPlayers').text(numPlayers);
     }
 
     function prepareLead(quests, questNum) {
