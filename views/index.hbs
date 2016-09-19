@@ -108,9 +108,9 @@
           $('#joinerror').text('Please enter a valid name.');
           $('#joinerror').css('display', 'block');
         }
-        else {
+        /*else {
           IO.socket.emit('playerJoinGame', {name: $('#joinName').val(), roomID: $('#accessCode').val()});
-        }
+        }*/
     });
     IO.init();
   });

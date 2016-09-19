@@ -89,6 +89,7 @@
          */
         init: function() {
             IO.socket = io.connect();
+            IO.socket.emit('playerJoinGame', {name: $('#player' + ID).text(), roomID: $('#accessCode').text()});
             IO.socket.emit('joinedWaitingRoom', $('#accessCode').text());
             IO.bindEvents();
         },
@@ -109,14 +110,19 @@
             IO.socket.on('assassinationComplete', IO.assassinationComplete);
         },
 
-        playerJoinedRoom : function(name) {
-            // When a player joins a room, do the updateWaitingScreen funciton.
-            // There are two versions of this function: one for the 'host' and
-            // another for the 'player'.
-            //
-            // So on the 'host' browser window, the App.Host.updateWiatingScreen function is called.
-            // And on the player's browser, App.Player.updateWaitingScreen is called.
-            $('<tr><td id = player' + numPlayers+ '><span class = "playerName">' + name + '</span><span class = "leadPlayer"></span><span class = "voteIcon"></span><span class = "missionIcon"></span></td></tr>').hide().appendTo('#connectedPlayers').fadeIn(500);
+        playerJoinedRoom : function(players) {
+          for(var i = 0; i < players.length; i++)
+          {
+            //console.log('#player' + i + ' ' + $('#player' + i).length);
+
+            if($('#player' + i).length === 0)
+            {
+              //console.log('xxx');
+              $('<tr><td id = player' + numPlayers+ '><span class = "playerName">' + players[i].name + '</span><span class = "leadPlayer"></span><span class = "voteIcon"></span><span class = "missionIcon"></span></td></tr>').hide().appendTo('#connectedPlayers').fadeIn(500);
+            }
+            else if($('#player' + i + ' .playerName').text() != players[i].name)
+              $('#player' + i + ' .playerName').text(players[i].name);
+          }
             $('#numPlayers').text(++numPlayers);
             //console.log(numPlayers);
             if(numPlayers >= 5)

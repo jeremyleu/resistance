@@ -91,7 +91,8 @@ function playerJoinGame(data) {
     this.handshake.session.room = room;
     this.handshake.session.save(function (err) { /* handle error */
     });
-    this.broadcast.to('' + room).emit('playerJoinedRoom', data.name);
+    this.broadcast.to('' + room).emit('playerJoinedRoom', app.locals.rooms[room].players);
+    console.log("playerJoinedRoom emitted with players " + JSON.stringify(app.locals.rooms[room].players));
 };
 
 function joinedWaitingRoom(roomID) {
@@ -99,6 +100,7 @@ function joinedWaitingRoom(roomID) {
   this.join('' + room);
   this.handshake.session.room = room;
   this.handshake.session.save(function (err) { /* handle error */
+    console.log("error: " + err);
   });
 }
 
