@@ -3,8 +3,27 @@
 <h3 id = "header">Access Code:</h3>
 <h1 id = "accessCode">{{accessCode}}</h1>
 
+
+
 <div id = "roleinfo" class = "status"></div>
 <br>
+
+<!--<table class = "table" id = "extraRoles">
+  <thead>
+    <tr>
+      <th id = "extraRolesTitle">Role options:</th>
+    </tr>
+  </thead>
+  {{#each players}}
+  <tr>
+    <td id = "{{{IDString}}}" valign = "middle">
+      <span class = "playerName">{{name}}</span><span class = "leadPlayer"></span><span class = "voteIcon"></span><span class = "missionIcon"></span>
+    </td>
+  </tr>
+  {{/each}}
+</table>-->
+
+
 <div id = "cardTrack" style="display:none">
 </div>
 <div id = "status" class = "status">
@@ -118,12 +137,13 @@
             if($('#player' + i).length === 0)
             {
               //console.log('xxx');
-              $('<tr><td id = player' + numPlayers+ ' valign = "middle"><span class = "playerName">' + players[i].name + '</span><span class = "leadPlayer"></span><span class = "voteIcon"></span><span class = "missionIcon"></span></td></tr>').hide().appendTo('#connectedPlayers').fadeIn(500);
+              $('<tr><td id = player' + i + ' valign = "middle"><span class = "playerName">' + players[i].name + '</span><span class = "leadPlayer"></span><span class = "voteIcon"></span><span class = "missionIcon"></span></td></tr>').hide().appendTo('#connectedPlayers').fadeIn(500);
             }
             else if($('#player' + i + ' .playerName').text() != players[i].name)
               $('#player' + i + ' .playerName').text(players[i].name);
           }
-            $('#numPlayers').text(++numPlayers);
+          numPlayers = players.length;
+            $('#numPlayers').text(numPlayers);
             //console.log(numPlayers);
             if(numPlayers >= 5)
             {
