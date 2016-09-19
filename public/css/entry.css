@@ -218,4 +218,7 @@ td .glyphicon {
 		.contentcontainer input[type = "text"], .btn, .btn-lg{
 			font-size: 1em;
 		}
+		#questTrack, #questTextContainer, .table {
+			min-width: 0;
+		}
 }
