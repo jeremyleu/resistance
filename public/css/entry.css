@@ -207,12 +207,15 @@ td .glyphicon {
 
 @media only screen and (max-width: 400px) {
     #container {
-      width:95%;
+      width:85%;
     }
 		.displayOnStart, #connectedPlayers {
 			min-width: 0;
 		}
 		#title {
 			font-size: 3em;
+		}
+		.contentcontainer input[type = "text"], .btn, .btn-lg{
+			font-size: 1em;
 		}
 }
