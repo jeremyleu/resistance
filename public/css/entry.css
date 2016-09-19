@@ -5,7 +5,7 @@
 }
 
 html,body{
-	height:100vh;
+	/*height:100vh;*/
 	width:100%;
 }
 
@@ -23,7 +23,24 @@ html,body{
 
 body {
 	font-family:Panton;
+	text-align: center;
+}
+
+#flex-container{
+	width: 100%;
+	height: 100vh;
 	text-align:center;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+
+	-ms-flex-align: center;
+	-webkit-align-items: center;
+	-webkit-box-align: center;
+
+  align-items: center;
+  justify-content: center;
+	-webkit-justify-content: center; /* Safari 6.1+ */
 }
 
 #title {
@@ -38,12 +55,12 @@ body {
 
 #container {
 	width: 400px;
-	position:absolute;
+	/*position:absolute;
 	top: 50%;
 	left: 50%;
 	-webkit-transform: translate(-50%, -50%);
 	-ms-transform: translate(-50%, -50%);
-	transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);*/
 	padding-top: 10%;
 	padding-bottom: 10%;
 }
@@ -241,5 +258,16 @@ td .glyphicon {
 		}
 		#connectedPlayers tr, #connectedPlayers td {
 			line-height: 2;
+		}
+		.questGlyph{
+			font-size: 3em;
+			width: 45px;
+			height: 100%;
+			opacity: 0.1;
+		}
+
+		.questText{
+			font-size: 2.2em;
+			opacity: 0.35;
 		}
 }

@@ -15,16 +15,40 @@
 </head>
 <body>
   <center>
-    <div id = "container">
-      {{{body}}}
-      <br>
-      Jeremy Leu 2016<br>
-      Publishing rights belong to Indie Boards and Cards
-    </div>
+    <div id = "flex-container">
+      <div id = "container">
+        {{{body}}}
+        <br>
+        Jeremy Leu 2016<br>
+        Publishing rights belong to Indie Boards and Cards
+      </div>
 
+    </div>
   </center>
 
 
+  <script type = "text/javascript">
+    $(function(){
+      var position = $('#container').offset();
+      var margin;
+      if(position.top < 0)
+      {
+        margin = -position.top;
+        $('html').css('margin-top', '' + margin + 'px');
+        console.log("margin set to " + margin);
+      }
+      setTimeout(checkForChanges, 500);
+      function checkForChanges()
+      {
+        var newPosition = $('#container').offset();
+          if (newPosition.top != position.top && newPosition.top < 0)
+          {
+            margin = -position.top;
+            $('html').css('margin-top', '' + margin + 'px');
+          }
+      }
+    });
 
+  </script>
 </body>
 </html>
