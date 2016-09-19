@@ -28,7 +28,7 @@
 
 
   <script type = "text/javascript">
-    $(function(){
+    /*$(function(){
       var position = $('#container').offset();
       var margin;
       if(position.top < 0)
@@ -46,6 +46,22 @@
             margin = -position.top;
             $('html').css('margin-top', '' + margin + 'px');
           }
+      }
+    });*/
+  /*  $(function(){
+      var height = $('#container').height();
+      if(height > $('#flex-container').height())
+      {
+        $('#flex-container').height(height);
+      }
+      setTimeout(checkForChanges, 500);
+      function checkForChanges()
+      {
+        height = $('#container').height();
+        if(height > $('#flex-container').height())
+        {
+          $('#flex-container').height(height);
+        }
       }
     });
 
