@@ -104,7 +104,7 @@ function joinedWaitingRoom(roomID) {
   });
 }
 
-function hostStartGame(roomID) {
+function hostStartGame(roomID, goodGuysList, badGuysList) {
   var room = roomID - 1000;
   if(this.handshake.session.room == room)
   {
@@ -113,7 +113,7 @@ function hostStartGame(roomID) {
     {
       app.locals.rooms[room].open = false;
       var players = app.locals.rooms[room].players;
-      var data = assignRolesAndQuests(players.length);
+      var data = assignRolesAndQuests(players.length, goodGuysList, badGuysList);
       var roles = data.roles;
       var quests = data.quests;
       var firstLead = Math.floor(Math.random() * players.length);
@@ -240,10 +240,12 @@ function voteSubmitted(data) {
           else if(!data.quests[j].success)
             fail++;
         }
-        if(success >= 3)
+        if(success >= 3 && data.isMerlinGame)
         {
           gameEndReason = "Three quests have succeeded. Waiting on Assassin to guess Merlin...";
         }
+        else if(success >= 3 && !data.isMerlinGame)
+          gameEndReason = "Three quests have succeeded.";
         else if(fail >= 3)
           gameEndReason = "Three quests have failed. Bad guys win!";
       }
@@ -282,8 +284,9 @@ function voteSubmitted(data) {
   }
 
 
-function assignRolesAndQuests(numPlayers) {
-  var roles, quest1, quest2, quest3, quest4, quest5;
+function assignRolesAndQuests(numPlayers, goodGuysList, badGuysList) {
+  var quest1, quest2, quest3, quest4, quest5;
+  var roles = [];
   if(numPlayers == 5)
   {
     quest1 = {"numberOfPlayers": 2, "failsRequired": 1, "votingTrack": 0, "success": null};
@@ -291,7 +294,14 @@ function assignRolesAndQuests(numPlayers) {
     quest3 = {"numberOfPlayers": 2, "failsRequired": 1, "votingTrack": 0, "success": null};
     quest4 = {"numberOfPlayers": 3, "failsRequired": 1, "votingTrack": 0, "success": null};
     quest5 = {"numberOfPlayers": 3, "failsRequired": 1, "votingTrack": 0, "success": null};
-    roles = ["Merlin", "Percival", "Generic Good Guy", "Assassin", "Morgana"];
+    for(var i = goodGuysList.length; i < 3; i++)
+      roles.push("generic good guy");
+    for(var i = badGuysList.length; i < 2; i++)
+      roles.push("generic bad guy");
+    roles.push.apply(roles, goodGuysList);
+    roles.push.apply(roles, badGuysList);
+    console.log(roles);
+    //roles = ["Merlin", "Percival", "generic good guy", "Assassin", "Morgana"];
   }
   else if(numPlayers == 6)
   {
@@ -300,7 +310,13 @@ function assignRolesAndQuests(numPlayers) {
     quest3 = {"numberOfPlayers": 4, "failsRequired": 1, "votingTrack": 0, "success": null};
     quest4 = {"numberOfPlayers": 3, "failsRequired": 1, "votingTrack": 0, "success": null};
     quest5 = {"numberOfPlayers": 4, "failsRequired": 1, "votingTrack": 0, "success": null};
-    roles = ["Merlin", "Percival", "Generic Good Guy", "Assassin", "Morgana", "Generic Good Guy"];
+    //roles = ["Merlin", "Percival", "generic good guy", "Assassin", "Morgana", "generic good guy"];
+    for(var i = goodGuysList.length; i < 4; i++)
+      roles.push("generic good guy");
+    for(var i = badGuysList.length; i < 2; i++)
+      roles.push("generic bad guy");
+    roles.push.apply(roles, goodGuysList);
+    roles.push.apply(roles, badGuysList);
   }
   else if(numPlayers == 7)
   {
@@ -309,7 +325,13 @@ function assignRolesAndQuests(numPlayers) {
     quest3 = {"numberOfPlayers": 3, "failsRequired": 1, "votingTrack": 0, "success": null};
     quest4 = {"numberOfPlayers": 4, "failsRequired": 2, "votingTrack": 0, "success": null};
     quest5 = {"numberOfPlayers": 4, "failsRequired": 1, "votingTrack": 0, "success": null};
-    roles = ["Merlin", "Percival", "Generic Good Guy", "Assassin", "Morgana", "Generic Good Guy", "Generic Bad Guy"];
+    //roles = ["Merlin", "Percival", "generic good guy", "Assassin", "Morgana", "generic good guy", "generic bad guy"];
+    for(var i = goodGuysList.length; i < 4; i++)
+      roles.push("generic good guy");
+    for(var i = badGuysList.length; i < 3; i++)
+      roles.push("generic bad guy");
+    roles.push.apply(roles, goodGuysList);
+    roles.push.apply(roles, badGuysList);
   }
   else if(numPlayers == 8)
   {
@@ -318,7 +340,13 @@ function assignRolesAndQuests(numPlayers) {
     quest3 = {"numberOfPlayers": 4, "failsRequired": 1, "votingTrack": 0, "success": null};
     quest4 = {"numberOfPlayers": 5, "failsRequired": 2, "votingTrack": 0, "success": null};
     quest5 = {"numberOfPlayers": 5, "failsRequired": 1, "votingTrack": 0, "success": null};
-    roles = ["Merlin", "Percival", "Generic Good Guy", "Assassin", "Morgana", "Generic Good Guy", "Generic Bad Guy", "Generic Good Guy"];
+    //roles = ["Merlin", "Percival", "generic good guy", "Assassin", "Morgana", "generic good guy", "generic bad guy", "generic good guy"];
+    for(var i = goodGuysList.length; i < 5; i++)
+      roles.push("generic good guy");
+    for(var i = badGuysList.length; i < 3; i++)
+      roles.push("generic bad guy");
+    roles.push.apply(roles, goodGuysList);
+    roles.push.apply(roles, badGuysList);
   }
   else if(numPlayers == 9)
   {
@@ -327,7 +355,13 @@ function assignRolesAndQuests(numPlayers) {
     quest3 = {"numberOfPlayers": 4, "failsRequired": 1, "votingTrack": 0, "success": null};
     quest4 = {"numberOfPlayers": 5, "failsRequired": 2, "votingTrack": 0, "success": null};
     quest5 = {"numberOfPlayers": 5, "failsRequired": 1, "votingTrack": 0, "success": null};
-    roles = ["Merlin", "Percival", "Generic Good Guy", "Assassin", "Morgana", "Generic Good Guy", "Generic Bad Guy", "Generic Good Guy", "Generic Good Guy"];
+    //roles = ["Merlin", "Percival", "generic good guy", "Assassin", "Morgana", "generic good guy", "generic bad guy", "generic good guy", "generic good guy"];
+    for(var i = goodGuysList.length; i < 6; i++)
+      roles.push("generic good guy");
+    for(var i = badGuysList.length; i < 3; i++)
+      roles.push("generic bad guy");
+    roles.push.apply(roles, goodGuysList);
+    roles.push.apply(roles, badGuysList);
   }
   else
   {
@@ -336,7 +370,13 @@ function assignRolesAndQuests(numPlayers) {
     quest3 = {"numberOfPlayers": 4, "failsRequired": 1, "votingTrack": 0, "success": null};
     quest4 = {"numberOfPlayers": 5, "failsRequired": 2, "votingTrack": 0, "success": null};
     quest5 = {"numberOfPlayers": 5, "failsRequired": 1, "votingTrack": 0, "success": null};
-    roles = ["Merlin", "Percival", "Generic Good Guy", "Assassin", "Morgana", "Generic Good Guy", "Generic Bad Guy", "Generic Good Guy", "Generic Good Guy", "Generic Bad Guy"];
+    //roles = ["Merlin", "Percival", "generic good guy", "Assassin", "Morgana", "generic good guy", "generic bad guy", "generic good guy", "generic good guy", "generic bad guy"];
+    for(var i = goodGuysList.length; i < 6; i++)
+      roles.push("generic good guy");
+    for(var i = badGuysList.length; i < 4; i++)
+      roles.push("generic bad guy");
+    roles.push.apply(roles, goodGuysList);
+    roles.push.apply(roles, badGuysList);
   }
   var quests = [quest1, quest2, quest3, quest4, quest5];
   roles = shuffle(roles);

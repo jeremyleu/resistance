@@ -22,6 +22,72 @@
   </tr>
   {{/each}}
 </table>-->
+{{#if host}}
+<div id = "currentGoodGuys" class = "status hostStuff">Good guys selected: <span id = "goodGuysList">None</span></div>
+<div id = "currentBadGuys" class = "status hostStuff">Bad guys selected: <span id = "badGuysList">None</span></div>
+<table class = "table borderless hostStuff" id = "roleSelect">
+  <thead>
+    <tr>
+      <th id = "roleSelectTitle" colspan = "2">Include...</th>
+    </tr>
+  </thead>
+  <tr id = "merlinSelect">
+    <td class = "leftAlign" colspan = "1">
+      Merlin and Assassin?
+    </td>
+    <td class = "rightAlign" colspan = "1">
+      <div class="btn-group btn-group-lg roleSelectGroup" role="group" style="float:right" >
+        <button class = "btn btn-lg btn-secondary yes" id = "merlinYes">Yes</button>
+        <button class = "btn btn-lg btn-secondary no" id = "merlinNo">No</button>
+      </div>
+    </td>
+  </tr>
+  <tr id = "oberonSelect">
+    <td class = "leftAlign" colspan = "1">
+      Oberon?
+    </td>
+    <td class = "rightAlign" colspan = "1">
+      <div class="btn-group btn-group-lg roleSelectGroup" role="group" style="float:right" >
+        <button class = "btn btn-lg btn-secondary yes" id = "oberonYes">Yes</button>
+        <button class = "btn btn-lg btn-secondary no" id = "oberonNo">No</button>
+      </div>
+    </td>
+  </tr>
+  <tr id = "mordredSelect">
+    <td class = "leftAlign" colspan = "1">
+      Mordred?
+    </td>
+    <td class = "rightAlign" colspan = "1">
+      <div class="btn-group btn-group-lg roleSelectGroup" role="group" style="float:right" >
+        <button class = "btn btn-lg btn-secondary yes" id = "mordredYes">Yes</button>
+        <button class = "btn btn-lg btn-secondary no" id = "mordredNo">No</button>
+      </div>
+    </td>
+  </tr>
+  <tr id = "percivalSelect">
+    <td class = "leftAlign" colspan = "1">
+      Percival?
+    </td>
+    <td class = "rightAlign" colspan = "1">
+      <div class="btn-group btn-group-lg roleSelectGroup" role="group" style="float:right" >
+        <button class = "btn btn-lg btn-secondary yes" id = "percivalYes">Yes</button>
+        <button class = "btn btn-lg btn-secondary no" id = "percivalNo">No</button>
+      </div>
+    </td>
+  </tr>
+  <tr id = "morganaSelect">
+    <td class = "leftAlign" colspan = "1">
+      Morgana?
+    </td>
+    <td class = "rightAlign" colspan = "1">
+      <div class="btn-group btn-group-lg roleSelectGroup" role="group" style="float:right" >
+        <button class = "btn btn-lg btn-secondary yes" id = "morganaYes">Yes</button>
+        <button class = "btn btn-lg btn-secondary no" id = "morganaNo">No</button>
+      </div>
+    </td>
+  </tr>
+</table>
+{{/if}}
 
 
 <div id = "cardTrack" style="display:none">
@@ -64,7 +130,8 @@
 </table>
 
 {{#if host}}
-  <button id = "startbtn" class = "btn btn-lg btn-secondary" disabled>Start</button>
+  <div id = "startError" style="display:none">A <span id = "numberOfPlayers"></span>-player game only has <span id = "numberOfBadGuys"></span> bad guys, but you have picked <span id = "numberOfBadRolesPicked"></span> bad roles.</div><br>
+  <button id = "startbtn" class = "btn btn-lg btn-secondary hostStuff" disabled>Start</button>
 {{/if}}
 <div id = "proposeStatus" class = "status leadStuff"></div>
 <div id = "voteStatus" class = "status voteStuff"></div>
@@ -85,6 +152,7 @@
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script>
   $(function() {
+
     var ID = parseInt($('#ID').text());
     var accessCode = parseInt($('#accessCode').text());
     var numPlayers = parseInt($('#numPlayers').text());
@@ -95,7 +163,10 @@
     var players;
     var quests;
     var currentQuest;
+    var goodGuysList = [];
+    var badGuysList = [];
     var cardsPlayed = [];
+    var isMerlinGame;
     if(numPlayers >= 5)
     {
       $('#startbtn').prop('disabled', false);
@@ -145,10 +216,8 @@
           numPlayers = players.length;
             $('#numPlayers').text(numPlayers);
             //console.log(numPlayers);
-            if(numPlayers >= 5)
-            {
-              $('#startbtn').prop('disabled', false);
-            }
+            checkStartBtn();
+
             //console.log("hello");
         },
 
@@ -173,17 +242,22 @@
           var merlins = [];
           for(var i = 0; i < players.length; i++)
           {
-            if(players[i].role == 'Merlin')
+            if(players[i].role == 'merlin')
+            {
+              isMerlinGame = true;
               merlins.push(players[i].name);
-            else if(players[i].role == 'Morgana')
+            }
+            else if(players[i].role == 'morgana')
             {
               badguys.push(players[i].name);
               merlins.push(players[i].name);
             }
-            else if(players[i].role == 'Assassin')
+            else if(players[i].role == 'assassin' || players[i].role == 'generic bad guy')
               badguys.push(players[i].name);
-            else if(players[i].role == 'Generic Bad Guy')
+            else if(players[i].role == 'mordred' && players[ID].role != 'merlin')
               badguys.push(players[i].name);
+            else if(players[i].role == 'oberon' && players[ID].role == 'merlin')
+              badguys.push(players[i].name)
             if(players[i].lead)
             {
               $('#player' + players[i].playerID + ' .leadPlayer').addClass("glyphicon glyphicon-king");
@@ -200,22 +274,23 @@
 
           if(badguys.indexOf(players[ID].name) > -1)
             badguys.splice(badguys.indexOf(players[ID].name), 1);
+
           var displayMerlins = merlins[0];
           var displayBadguys = badguys[0];
           for(var j = 1; j < merlins.length; j++)
             displayMerlins += ', ' + merlins[j];
           for(var k = 1; k < badguys.length; k++)
             displayBadguys += ', ' + badguys[k];
-          if(players[ID].role == 'Merlin')
-            $('#roleinfo').html('Minions of Mordred: ' + displayBadguys);
-          else if(players[ID].role == 'Percival')
+          if(players[ID].role == 'merlin')
+            $('#roleinfo').html('Bad Guys: ' + displayBadguys);
+          else if(players[ID].role == 'percival')
             $('#roleinfo').html('Appear as Merlin: ' + displayMerlins);
-          else if(players[ID].role == 'Morgana' || players[ID].role == 'Assassin' || players[ID].role == 'Generic Bad Guy')
+          else if(players[ID].role == 'morgana' || players[ID].role == 'assassin' || players[ID].role == 'generic bad guy' || players[ID].role == 'mordred')
           {
             if(badguys.length > 1)
-              $('#roleinfo').html('Other Minions of Mordred: ' + displayBadguys);
+              $('#roleinfo').html('Other Bad Guys: ' + displayBadguys);
             else
-              $('#roleinfo').html('Other Minion of Mordred: ' + displayBadguys);
+              $('#roleinfo').html('Other Bad Guy: ' + displayBadguys);
           }
 
           if(ID === leadPlayer)
@@ -368,7 +443,7 @@
           if(data.goodGuysWin)
           {
             $('#status').html("Assassin " + assassin + " assassinated " + players[data.target].name + ", who was not Merlin. <br>" + merlin + " was Merlin. <br>Good guys win!");
-            if(players[ID].role == 'Morgana' || players[ID].role == 'Assassin' || players[ID].role == 'Generic Bad Guy')
+            if(players[ID].role == 'morgana' || players[ID].role == 'assassin' || players[ID].role == 'generic bad guy' || players[ID].role == 'mordred' || players[ID].role == 'oberon')
               $('#accessCode').text("You lose!");
             else {
               $('#accessCode').text("You win!");
@@ -376,7 +451,7 @@
           }
           else{
             $('#status').html("Assassin " + assassin + " assassinated " + merlin + ", who was Merlin. <br>Bad guys win!");
-            if(players[ID].role == 'Morgana' || players[ID].role == 'Assassin' || players[ID].role == 'Generic Bad Guy')
+            if(players[ID].role == 'morgana' || players[ID].role == 'assassin' || players[ID].role == 'generic bad guy' || players[ID].role == 'mordred' || players[ID].role == 'oberon')
               $('#accessCode').text("You win!");
             else {
               $('#accessCode').text("You lose!");
@@ -389,6 +464,28 @@
 
 
 
+    }
+
+    function checkStartBtn(){
+      if(numPlayers >= 5)
+      {
+        if(badGuysList.length > Math.ceil(numPlayers/3))
+        {
+          $('#startError').css('display', 'block');
+          $('#numberOfPlayers').text(numPlayers);
+          $('#numberOfBadGuys').text(Math.ceil(numPlayers/3));
+          $('#numberOfBadRolesPicked').text(badGuysList.length);
+          $('#startbtn').prop('disabled', true);
+        }
+        else
+        {
+          $('#startError').css('display', 'none');
+          $('#startbtn').prop('disabled', false);
+        }
+      }
+      else {
+        $('#startbtn').prop('disabled', true);
+      }
     }
 
     function checkPlayerList(playerList) {
@@ -580,23 +677,35 @@
       $('#status').text(gameEndReason);
       $('.voteIcon').removeClass('glyphicon-ok');
       $('.voteIcon').removeClass('glyphicon-remove');
-      if(gameEndReason == "Three quests have succeeded. Waiting on Assassin to guess Merlin...")
+      if(gameEndReason == "Three quests have succeeded. Waiting on Assassin to guess Merlin..." && isMerlinGame)
       {
         var assassinID;
         for(var i = 0; i < players.length; i++)
         {
-          if(players[i].role == 'Assassin')
+          if(players[i].role == 'assassin')
             assassinID = i;
         }
         $('.voteIcon #player' + assassinID).addClass('glyphicon-time');
-        if(players[ID].role === 'Assassin')
+        if(players[ID].role === 'assassin')
         {
           prepareAssassination();
         }
       }
+      else if(gameEndReason == "Three quests have succeeded.")
+      {
+        $('#status').html("Three quests have succeeded.<br>Good guys win!");
+        $('#header').text("Game over");
+        if(players[ID].role == 'morgana' || players[ID].role == 'assassin' || players[ID].role == 'generic bad guy' || players[ID].role == 'mordred' || players[ID].role == 'oberon')
+          $('#accessCode').text("You lose!");
+        else {
+          $('#accessCode').text("You win!");
+        }
+        $('#homebtn').css('display', 'inline-block');
+        IO.socket.emit('gameEnd', accessCode);
+      }
       else {
         $('#header').text("Game over");
-        if(players[ID].role == 'Morgana' || players[ID].role == 'Assassin' || players[ID].role == 'Generic Bad Guy')
+        if(players[ID].role == 'morgana' || players[ID].role == 'assassin' || players[ID].role == 'generic bad guy' || players[ID].role == 'mordred' || players[ID].role == 'oberon')
           $('#accessCode').text("You win!");
         else {
           $('#accessCode').text("You lose!");
@@ -610,12 +719,96 @@
 
     });*/
 
-    var App = {
 
-    };
+    $('#roleSelect button').on('click', function(){
+
+      /*if($(this).hasClass('roleSelected'))
+      {
+        console.log('removed');
+        $(this).removeClass('roleSelected');
+      }*/
+      if(!$(this).hasClass('roleSelected')) {
+
+        if($(this).hasClass('yes'))
+        {
+          console.log($(this).attr('id'));
+          var role = $(this).attr('id').replace('Yes', '');
+          console.log(role);
+          if(role === 'merlin')
+          {
+            goodGuysList.push(role);
+            badGuysList.push('assassin');
+          }
+          else if(role === 'percival')
+            goodGuysList.push(role);
+          else {
+            badGuysList.push(role);
+          }
+          if($(this).attr('id') === 'merlinYes')
+          {
+            $('#percivalSelect').css('display', 'table-row');
+            $('#mordredSelect').css('display', 'table-row');
+          }
+          if($(this).attr('id') === 'percivalYes')
+          {
+            $('#morganaSelect').css('display', 'table-row');
+          }
+          $('#' + $(this).attr('id').replace('Yes', 'No')).removeClass('roleSelected');
+        }
+        else {
+          var role = $(this).attr('id').replace('No', '');
+          if(role === 'merlin')
+          {
+            if(goodGuysList.indexOf(role) > -1)
+              goodGuysList.splice(goodGuysList.indexOf(role), 1);
+            if(badGuysList.indexOf('assassin') > -1)
+              badGuysList.splice(badGuysList.indexOf('assassin'), 1);
+          }
+          else if(role === 'percival')
+          {
+            if(goodGuysList.indexOf(role) > -1)
+              goodGuysList.splice(goodGuysList.indexOf(role), 1);
+          }
+          else {
+            if(badGuysList.indexOf(role) > -1)
+              badGuysList.splice(badGuysList.indexOf(role), 1);
+          }
+          if($(this).attr('id') === 'merlinNo')
+          {
+            $('#percivalSelect').css('display', 'none');
+            $('#percivalSelect button').removeClass('roleSelected');
+            if(goodGuysList.indexOf('percival') > -1)
+              goodGuysList.splice(goodGuysList.indexOf('percival'), 1);
+            $('#mordredSelect').css('display', 'none');
+            $('#mordredSelect button').removeClass('roleSelected');
+            if(badGuysList.indexOf('mordred') > -1)
+              badGuysList.splice(badGuysList.indexOf('mordred'), 1);
+            $('#morganaSelect').css('display', 'none');
+            $('#morganaSelect button').removeClass('roleSelected');
+            if(badGuysList.indexOf('morgana') > -1)
+              badGuysList.splice(badGuysList.indexOf('morgana'), 1);
+          }
+          if($(this).attr('id') === 'percivalNo')
+          {
+            $('#morganaSelect').css('display', 'none');
+            $('#morganaSelect button').removeClass('roleSelected');
+            if(badGuysList.indexOf('morgana') > -1)
+              badGuysList.splice(badGuysList.indexOf('morgana'), 1);
+          }
+          $('#' + $(this).attr('id').replace('No', 'Yes')).removeClass('roleSelected');
+        }
+        $('#goodGuysList').text(rolesToString(goodGuysList));
+        $('#badGuysList').text(rolesToString(badGuysList));
+        $(this).addClass('roleSelected');
+      }
+      checkStartBtn();
+    });
+
+
+
     $('#startbtn').one('click', function(){
-      $('#startbtn').css('display', 'none');
-      IO.socket.emit('hostStartGame', accessCode);
+      $('.hostStuff').css('display', 'none');
+      IO.socket.emit('hostStartGame', accessCode, goodGuysList, badGuysList);
     });
 
     $('#proposebtn').on('click', function(){
@@ -639,7 +832,7 @@
       var success = ($(this).attr('id') === 'successbtn');
       //cardsPlayed.push(success);
       //console.log('cardPlayed emitted with cardsPlayed ' + cardsPlayed);
-      IO.socket.emit('cardPlayed', {"accessCode": accessCode, "player": ID, "cardPlayed": success, "cardsPlayed": cardsPlayed, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest});
+      IO.socket.emit('cardPlayed', {"accessCode": accessCode, "player": ID, "cardPlayed": success, "cardsPlayed": cardsPlayed, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest, "isMerlinGame", isMerlinGame});
     });
 
     $('#assassinatebtn').on('click', function(){
@@ -670,10 +863,23 @@
     }
 
     function playersChosenToString(playersChosenArray){
+      if(playersChosenArray.length == 0)
+        return "none";
       var displayProposed = players[playersChosenArray[0]].name + ' and ' + players[playersChosenArray[1]].name;
       for(var i = 2; i < playersChosenArray.length; i++)
         displayProposed = players[playersChosenArray[i]].name + ', ' + displayProposed;
       return displayProposed;
+    }
+
+    function rolesToString(roleArray){
+      if(roleArray.length == 0)
+        return "none";
+      else if(roleArray.length == 1)
+        return roleArray[0];
+      var display = roleArray[0] + ' and ' + roleArray[1];
+      for(var i = 2; i < roleArray.length; i++)
+        display = roleArray[i] + ', ' + display;
+      return display;
     }
     IO.init();
   });

@@ -71,6 +71,23 @@ button, .btn{
 	margin:10px;
 }
 
+.borderless>tbody>tr>td{
+	border-top: none;
+	border-bottom: 0px;
+}
+
+.roleSelectGroup button, .roleSelect .btn{
+	margin:0px;
+}
+
+#roleSelect .leftAlign {
+	text-align: left;
+}
+
+#roleSelect .rightAlign {
+	text-align: right;
+}
+
 button:disabled{
 	color:#999;
 	background:none;
@@ -240,11 +257,33 @@ td .glyphicon {
 	 margin-top: 30px;
 }
 
+#roleSelect {
+	 width:100%;
+	 min-width: 400px;
+	 margin-top: 20px;
+}
+
+#roleSelect td {
+	vertical-align: middle;
+}
+
+.roleSelected, .roleSelected:hover, .roleSelected:active, .roleSelected:focus {
+	background-color: #ddd;
+}
+
+#percivalSelect, #morganaSelect, #mordredSelect{
+	display:none;
+}
+
+.roleSelectGroup {
+	float:right;
+}
+
 @media only screen and (max-width: 500px) {
     #container {
       width:85%;
     }
-		.displayOnStart, #connectedPlayers {
+		.displayOnStart, #connectedPlayers, #roleSelect {
 			min-width: 0;
 		}
 		#title {
