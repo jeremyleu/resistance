@@ -143,7 +143,7 @@
 <button id = "rejectbtn" class = "btn btn-lg btn-secondary voteStuff votebtn">Reject</button>
 <button id = "successbtn" class = "btn btn-lg btn-secondary missionStuff missionbtn">Success</button>
 <button id = "failbtn" class = "btn btn-lg btn-secondary missionStuff missionbtn">Fail</button>
-<button id = "assassinatebtn" class = "btn btn-lg btn-secondary" style="display:none">Assassinate</button>
+<button id = "assassinatebtn" class = "btn btn-lg btn-secondary" style="display:none" disabled>Assassinate</button>
 <a href = "/" id = "homebtn" class = "btn btn-lg btn-secondary" style="display:none">Back to homepage</a>
 <br><br>
 <script id = "ID">
@@ -167,6 +167,8 @@
     var badGuysList = [];
     var cardsPlayed = [];
     var isMerlinGame;
+    var selectedAssassinTarget = null;
+
     if(numPlayers >= 5)
     {
       $('#startbtn').prop('disabled', false);
@@ -561,6 +563,7 @@
     function prepareAssassination() {
       $('#tableTitle').text("Who do you think is Merlin?");
       $('#assassinatebtn').css('display', 'inline-block');
+      $('#assassinateStatus').css('display', 'block');
       $('td').addClass('assassinSelectable');
     }
 
@@ -608,22 +611,23 @@
 
     $('table').on('click', '.assassinSelectable', function(event){
       //console.log('assassinSelectable clicked');
-      var selectedPlayer = null;
       if($(this).hasClass('assassinSelected'))
       {
         //playersChosen.splice(playersChosen.indexOf(players[ID].name), 1);
 
-        selectedPlayer = null;
+        selectedAssassinTarget = null;
         $('#assassinatebtn').prop('disabled', true);
-        updateAssassinateStatus(selectedPlayer);
+        updateAssassinateStatus(selectedAssassinTarget);
         $(this).removeClass('assassinSelected');
       }
-      else if(selectedPlayer == null)
+      else
       {
-        selectedPlayer = parseInt($(this).attr('id').substring(6));
-        $('#assassinate').prop('disabled', false);
-        updateAssassinateStatus(selectedPlayer);
-        $(this).addClass('assassinSelected');
+        //console.log($(this).attr('id').substring(6) + " clicked; selectedPlayer = " + selectedPlayer);
+        selectedAssassinTarget = parseInt($(this).attr('id').substring(6));
+        //console.log($(this).attr('id').substring(6) + " clicked; selectedPlayer = " + selectedPlayer);
+        $('#assassinatebtn').prop('disabled', false);
+        updateAssassinateStatus(selectedAssassinTarget);
+
       }
     });
 
@@ -654,6 +658,9 @@
 
     function updateAssassinateStatus(selectedPlayer){
       var assassinateStatus;
+      for(var i = 0; i < players.length; i++)
+        $('#player' + i).removeClass('assassinSelected');
+      $('#player' + selectedPlayer).addClass('assassinSelected');
       if(selectedPlayer == null)
         assassinateStatus = "You have not selected anyone to assassinate.";
       else {
