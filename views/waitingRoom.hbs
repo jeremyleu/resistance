@@ -832,7 +832,7 @@
       var success = ($(this).attr('id') === 'successbtn');
       //cardsPlayed.push(success);
       //console.log('cardPlayed emitted with cardsPlayed ' + cardsPlayed);
-      IO.socket.emit('cardPlayed', {"accessCode": accessCode, "player": ID, "cardPlayed": success, "cardsPlayed": cardsPlayed, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest, "isMerlinGame", isMerlinGame});
+      IO.socket.emit('cardPlayed', {"accessCode": accessCode, "player": ID, "cardPlayed": success, "cardsPlayed": cardsPlayed, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest, "isMerlinGame": isMerlinGame});
     });
 
     $('#assassinatebtn').on('click', function(){
