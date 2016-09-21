@@ -272,7 +272,7 @@ function voteSubmitted(data) {
     var players = data.players;
     if(this.handshake.session.room == room)
     {
-      goodGuysWin = (players[data.assassinSelected].role != 'Merlin');
+      goodGuysWin = (players[data.assassinSelected].role != 'merlin');
       console.log("Do good guys win? " + goodGuysWin);
       io.to('' + room).emit('assassinationComplete', {target: data.assassinSelected, goodGuysWin: goodGuysWin});
     }
