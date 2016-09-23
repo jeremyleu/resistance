@@ -87,7 +87,10 @@
     </td>
   </tr>
 </table>
+{{else}}
+<div id = "notHost">A minimum of 5 players is required to start.</div>
 {{/if}}
+
 
 
 <div id = "cardTrack" style="display:none">
@@ -152,8 +155,15 @@
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script>
   $(function() {
+    $(window).on('beforeunload', function() {
+      return "Leaving this page will permanently disconnect you from the game.";
+    });
+    window.addEventListener("pagehide", function(evt){
+            alert('Leaving this page will permanently disconnect you from the game.');
+    }, false);
 
     var ID = parseInt($('#ID').text());
+
     var accessCode = parseInt($('#accessCode').text());
     var numPlayers = parseInt($('#numPlayers').text());
     var leadPlayer;
@@ -171,6 +181,7 @@
 
     if(numPlayers >= 5)
     {
+      $('#notHost').text("Waiting for host " + $('#player0 .playerName').text() + " to begin the game...");
       $('#startbtn').prop('disabled', false);
     }
     var IO = {
@@ -484,6 +495,7 @@
           $('#startError').css('display', 'none');
           $('#startbtn').prop('disabled', false);
         }
+        $('#notHost').text("Waiting for host " + $('#player0 .playerName').text() + " to begin the game...");
       }
       else {
         $('#startbtn').prop('disabled', true);
