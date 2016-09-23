@@ -155,12 +155,11 @@
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script>
   $(function() {
-    $(window).on('beforeunload', function() {
+    var isOnIOS = navigator.userAgent.match(/iPad/i)|| navigator.userAgent.match(/iPhone/i);
+    var eventName = isOnIOS ? "pagehide" : "beforeunload";
+    $(window).on(eventName, function() {
       return "Leaving this page will permanently disconnect you from the game.";
     });
-    window.addEventListener("pagehide", function(evt){
-            alert('Leaving this page will permanently disconnect you from the game.');
-    }, false);
 
     var ID = parseInt($('#ID').text());
 
