@@ -250,7 +250,11 @@ td .glyphicon {
 #homebtn,
 #homebtn:focus,
 #homebtn:active,
-#homebtn:hover {
+#homebtn:hover,
+#homebtn2,
+#homebtn2:focus
+#homebtn2:active,
+#homebtn2:hover {
 	color: #000;
 }
 
@@ -284,6 +288,19 @@ td .glyphicon {
 
 .disconnected {
 	opacity: 0.3;
+}
+
+#endbtn:hover {
+	cursor: pointer;
+}
+
+#leaveStuff{
+	position:absolute;
+	top: 50vh;
+	left: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
 }
 
 @media only screen and (max-width: 500px) {

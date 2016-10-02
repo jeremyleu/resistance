@@ -389,13 +389,22 @@ function voteSubmitted(data) {
     }
   }
 
-  function gameEnd(accessCode) {
+
+  function gameEnd(accessCode, player) {
     var room = accessCode - 1000;
+    if(player != null)
+    {
+      console.log("playerLeft emitted with player " + player );
+      io.to('' + room).emit('playerLeft', app.locals.rooms[room].players[player].name);
+    }
     app.locals.rooms[room] = null;
-    this.handshake.session.room = null;
-    this.handshake.session.ID = null;
-    this.handshake.session.host = null;
-    this.handshake.session.destroy();
+    if(this.handshake.session)
+    {
+      this.handshake.session.room = null;
+      this.handshake.session.ID = null;
+      this.handshake.session.host = null;
+      this.handshake.session.destroy();
+    }
   }
 
   function disconnect() {

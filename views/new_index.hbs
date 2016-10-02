@@ -24,6 +24,7 @@
 
 
 <div id = "gameUI" class = "contentcontainer">
+  <div id = "endbtn" class="glyphicon glyphicon-remove-circle" style="position: fixed; top: 5px; right: 5px; font-size: 2.5em;"></div>
   <h3 id = "header">Access Code:</h3>
   <h1 id = "accessCode"></h1>
 
@@ -155,7 +156,6 @@
 
     <div id = "startError" style="display:none">A <span id = "numberOfPlayers"></span>-player game only has <span id = "numberOfBadGuys"></span> bad guys, but you have picked <span id = "numberOfBadRolesPicked"></span> bad roles.</div><br>
     <button id = "startbtn" class = "btn btn-lg btn-secondary hostStuff" disabled>Start</button>
-    <button id = "endbtn" class = "btn btn-lg btn-secondary hostStuff">Leave</button>
   <div id = "proposeStatus" class = "status leadStuff"></div>
   <div id = "voteStatus" class = "status voteStuff"></div>
   <div id = "missionStatus" class = "status missionStuff"></div>
@@ -168,6 +168,13 @@
   <button id = "failbtn" class = "btn btn-lg btn-secondary missionStuff missionbtn">Fail</button>
   <button id = "assassinatebtn" class = "btn btn-lg btn-secondary" style="display:none" disabled>Assassinate</button>
   <a href = "/" id = "homebtn" class = "btn btn-lg btn-secondary" style="display:none">Back to homepage</a>
+  <div id = "leaveScreen" style="display:none; background-color: #fff; opacity: 0.9; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0;">
+    <div id = "leaveStuff" class = "contentcontainer">
+      <span id = "leaver"></span> left the game.<br><br>
+      <a href = "/" id = "homebtn2" class = "btn btn-lg btn-secondary" style="background-color: #fff; opacity: 1">Back to homepage</a>
+    </div>
+  </div>
+</div>
   <br><br>
 
 <br>
@@ -176,11 +183,13 @@
 <script type = "text/javascript">
   $(function() {
 
-    var isOnIOS = navigator.userAgent.match(/iPad/i)|| navigator.userAgent.match(/iPhone/i);
+    console.log("h/w changed to " + $(window).height());
+
+    /*var isOnIOS = navigator.userAgent.match(/iPad/i)|| navigator.userAgent.match(/iPhone/i);
     var eventName = isOnIOS ? "pagehide" : "beforeunload";
     $(window).on(eventName, function() {
       return "Leaving this page will permanently disconnect you from the game.";
-    });
+    });*/
 
 
 
@@ -240,6 +249,7 @@
             IO.socket.on('playerDisconnected', IO.playerDisconnected);
             IO.socket.on('reconnectInfo', IO.reconnectInfo);
             IO.socket.on('playerReconnected', IO.playerReconnected);
+            IO.socket.on('playerLeft', IO.playerLeft);
         },
 
         roomCreated : function(data) {
@@ -632,7 +642,19 @@
           }
 
           $('#homebtn').css('display', 'inline-block');
-          IO.socket.emit('gameEnd', accessCode);
+          IO.socket.emit('gameEnd', accessCode, null);
+        },
+
+        playerLeft: function(player)
+        {
+
+          $('#leaveScreen').css('display', 'block');
+          $('#leaveScreen').css('height', '100vh');
+          $('#leaveScreen').css('width', '100vw');
+          $('html').css('overflow', 'hidden');
+
+          $('#leaver').text(player);
+          IO.socket.emit('gameEnd', accessCode, null);
         }
 
 
@@ -973,7 +995,7 @@
           $('#accessCode').text("You win!");
         }
         $('#homebtn').css('display', 'inline-block');
-        IO.socket.emit('gameEnd', accessCode);
+        IO.socket.emit('gameEnd', accessCode, null);
       }
       else {
         $('#header').text("Game over");
@@ -983,7 +1005,7 @@
           $('#accessCode').text("You lose!");
         }
         $('#homebtn').css('display', 'inline-block');
-        IO.socket.emit('gameEnd', accessCode);
+        IO.socket.emit('gameEnd', accessCode, null);
       }
     }
     /*$('tr').on('click', '.selected', function(event){
@@ -1084,8 +1106,12 @@
     });
 
     $('#endbtn').one('click', function(){
-      IO.socket.emit('gameEnd');
-      location.reload();
+      var result = confirm("Are you sure you want to leave? Doing so will prematurely end the game.");
+      if(result)
+      {
+        IO.socket.emit('gameEnd', accessCode, ID);
+        location.reload();
+      }
     });
 
     $('#proposebtn').on('click', function(){
