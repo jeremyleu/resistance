@@ -282,6 +282,10 @@ td .glyphicon {
 	float:right;
 }
 
+.disconnected {
+	opacity: 0.3;
+}
+
 @media only screen and (max-width: 500px) {
     #container {
       width:85%;

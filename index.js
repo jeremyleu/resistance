@@ -6,7 +6,7 @@ var React = require('react');
 var ReactDomServer = require('react-dom/server');
 var hbs = require('hbs');
 var exphbs = require('express-handlebars');
-var resgame = require('./resgame');
+var resgame = require('./newresgame');
 var session = require('express-session');
 var sharedsession = require("express-socket.io-session");
 
@@ -72,6 +72,10 @@ io.sockets.on('connection', function (socket) {
   console.log('client joined room ' + room);
   app.locals.rooms[room] = newRoom;*/
   console.log('client connected');
+  socket.handshake.session.connected = true;
+  socket.handshake.session.save(function (err) { /* handle error */
+    console.log("error: " + err);
+  });
   resgame.initGame(io, socket, app);
     //require('./routes')(app, socket);
 });

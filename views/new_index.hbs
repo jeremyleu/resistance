@@ -1,3 +1,6 @@
+<span id = "roomRedirect" style="display: none">{{room}}</span>
+<span id = "IDRedirect" style="display: none">{{ID}}</span>
+
 <h1 id = "title">THE RESISTANCE</h1>
 <div id = "titlecontainer" class = "contentcontainer">
   <button class = "btn btn-lg btn-secondary" id="createbtn">Create</button>
@@ -7,25 +10,110 @@
 <div id = "createUI" class = "contentcontainer">
   <h3 id = "createerror"></h3>
   <input type = "text" class = "form-control" id="createName" name = "name" placeholder="Enter your name"></input>
-  <button class = "btn btn-lg btn-secondary" id="createroombtn" value = "Create Room"></button>
+  <button class = "btn btn-lg btn-secondary" id="createroombtn">Create Room</button>
   <button class = "btn btn-lg btn-secondary backbtn">Back</button>
 </div>
 
 <div id = "joinUI" class = "contentcontainer">
-  <h3 id = "joinerror">{{joinError}}</h3>
-  <input type = "text" class = "form-control" id="accessCode" name = "roomID" placeholder="Enter 4-digit access code"></input>
+  <h3 id = "joinerror"></h3>
+  <input type = "text" class = "form-control" id="accessCodeInput" name = "roomID" placeholder="Enter 4-digit access code"></input>
   <input type = "text" class = "form-control" id="joinName" name = "name" placeholder="Enter your name"></input>
-  <button class = "btn btn-lg btn-secondary" id="joinroombtn" value = "Join Room"></button>
+  <button class = "btn btn-lg btn-secondary" id="joinroombtn">Join Room</button>
   <button class = "btn btn-lg btn-secondary backbtn">Back</button>
 </div>
-<br>
+
 
 <div id = "gameUI" class = "contentcontainer">
   <h3 id = "header">Access Code:</h3>
-  <h1 id = "accessCode">{{accessCode}}</h1>
+  <h1 id = "accessCode"></h1>
+
+
 
   <div id = "roleinfo" class = "status"></div>
   <br>
+
+  <!--<table class = "table" id = "extraRoles">
+    <thead>
+      <tr>
+        <th id = "extraRolesTitle">Role options:</th>
+      </tr>
+    </thead>
+    {{#each players}}
+    <tr>
+      <td id = "{{{IDString}}}" valign = "middle">
+        <span class = "playerName">{{name}}</span><span class = "leadPlayer"></span><span class = "voteIcon"></span><span class = "missionIcon"></span>
+      </td>
+    </tr>
+    {{/each}}
+  </table>-->
+  <div id = "currentGoodGuys" class = "status hostStuff">Good guys selected: <span id = "goodGuysList">None</span></div>
+  <div id = "currentBadGuys" class = "status hostStuff">Bad guys selected: <span id = "badGuysList">None</span></div>
+  <table class = "table borderless hostStuff" id = "roleSelect">
+    <thead>
+      <tr>
+        <th id = "roleSelectTitle" colspan = "2">Include...</th>
+      </tr>
+    </thead>
+    <tr id = "merlinSelect">
+      <td class = "leftAlign" colspan = "1">
+        Merlin and Assassin?
+      </td>
+      <td class = "rightAlign" colspan = "1">
+        <div class="btn-group btn-group-lg roleSelectGroup" role="group" style="float:right" >
+          <button class = "btn btn-lg btn-secondary yes" id = "merlinYes">Yes</button>
+          <button class = "btn btn-lg btn-secondary no" id = "merlinNo">No</button>
+        </div>
+      </td>
+    </tr>
+    <tr id = "oberonSelect">
+      <td class = "leftAlign" colspan = "1">
+        Oberon?
+      </td>
+      <td class = "rightAlign" colspan = "1">
+        <div class="btn-group btn-group-lg roleSelectGroup" role="group" style="float:right" >
+          <button class = "btn btn-lg btn-secondary yes" id = "oberonYes">Yes</button>
+          <button class = "btn btn-lg btn-secondary no" id = "oberonNo">No</button>
+        </div>
+      </td>
+    </tr>
+    <tr id = "mordredSelect">
+      <td class = "leftAlign" colspan = "1">
+        Mordred?
+      </td>
+      <td class = "rightAlign" colspan = "1">
+        <div class="btn-group btn-group-lg roleSelectGroup" role="group" style="float:right" >
+          <button class = "btn btn-lg btn-secondary yes" id = "mordredYes">Yes</button>
+          <button class = "btn btn-lg btn-secondary no" id = "mordredNo">No</button>
+        </div>
+      </td>
+    </tr>
+    <tr id = "percivalSelect">
+      <td class = "leftAlign" colspan = "1">
+        Percival?
+      </td>
+      <td class = "rightAlign" colspan = "1">
+        <div class="btn-group btn-group-lg roleSelectGroup" role="group" style="float:right" >
+          <button class = "btn btn-lg btn-secondary yes" id = "percivalYes">Yes</button>
+          <button class = "btn btn-lg btn-secondary no" id = "percivalNo">No</button>
+        </div>
+      </td>
+    </tr>
+    <tr id = "morganaSelect">
+      <td class = "leftAlign" colspan = "1">
+        Morgana?
+      </td>
+      <td class = "rightAlign" colspan = "1">
+        <div class="btn-group btn-group-lg roleSelectGroup" role="group" style="float:right" >
+          <button class = "btn btn-lg btn-secondary yes" id = "morganaYes">Yes</button>
+          <button class = "btn btn-lg btn-secondary no" id = "morganaNo">No</button>
+        </div>
+      </td>
+    </tr>
+  </table>
+  <div id = "notHost">A minimum of 5 players is required to start.</div>
+
+
+
   <div id = "cardTrack" style="display:none">
   </div>
   <div id = "status" class = "status">
@@ -53,21 +141,21 @@
   <table class = "table" id = "connectedPlayers">
     <thead>
       <tr>
-        <th id = "tableTitle">Connected Players: <span id = "numPlayers">{{numPlayers}}</span><span class = "removeOnStart">/10</span></th>
+        <th id = "tableTitle">Connected Players: <span id = "numPlayers"></span><span class = "removeOnStart">/10</span></th>
       </tr>
     </thead>
-    {{#each players}}
+    <!--{{#each players}}
     <tr>
       <td id = "{{{IDString}}}" valign = "middle">
-        <span class = "playerName">{{name}}</span><span class = "leadPlayer"></span><span class = "voteIcon"></span><span class = "missionIcon"></span>
+        <span class = "playerName"></span><span class = "leadPlayer"></span><span class = "voteIcon"></span><span class = "missionIcon"></span>
       </td>
     </tr>
-    {{/each}}
+    {{/each}}-->
   </table>
 
-  {{#if host}}
-    <button id = "startbtn" class = "btn btn-lg btn-secondary" disabled>Start</button>
-  {{/if}}
+    <div id = "startError" style="display:none">A <span id = "numberOfPlayers"></span>-player game only has <span id = "numberOfBadGuys"></span> bad guys, but you have picked <span id = "numberOfBadRolesPicked"></span> bad roles.</div><br>
+    <button id = "startbtn" class = "btn btn-lg btn-secondary hostStuff" disabled>Start</button>
+    <button id = "endbtn" class = "btn btn-lg btn-secondary hostStuff">Leave</button>
   <div id = "proposeStatus" class = "status leadStuff"></div>
   <div id = "voteStatus" class = "status voteStuff"></div>
   <div id = "missionStatus" class = "status missionStuff"></div>
@@ -78,18 +166,47 @@
   <button id = "rejectbtn" class = "btn btn-lg btn-secondary voteStuff votebtn">Reject</button>
   <button id = "successbtn" class = "btn btn-lg btn-secondary missionStuff missionbtn">Success</button>
   <button id = "failbtn" class = "btn btn-lg btn-secondary missionStuff missionbtn">Fail</button>
-  <button id = "assassinatebtn" class = "btn btn-lg btn-secondary" style="display:none">Assassinate</button>
+  <button id = "assassinatebtn" class = "btn btn-lg btn-secondary" style="display:none" disabled>Assassinate</button>
   <a href = "/" id = "homebtn" class = "btn btn-lg btn-secondary" style="display:none">Back to homepage</a>
   <br><br>
-</div>
-<script id = "ID">
-  {{ID}}
-</script>
 
+<br>
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+
 <script type = "text/javascript">
   $(function() {
 
+    var isOnIOS = navigator.userAgent.match(/iPad/i)|| navigator.userAgent.match(/iPhone/i);
+    var eventName = isOnIOS ? "pagehide" : "beforeunload";
+    $(window).on(eventName, function() {
+      return "Leaving this page will permanently disconnect you from the game.";
+    });
+
+
+
+    var ID;
+    var host;
+    var accessCode;
+    var numPlayers;
+    var leadPlayer;
+    var playersChosen = [];
+    var playersNeeded;
+    var proposeStatus;
+    var players;
+    var quests;
+    var currentQuest;
+    var goodGuysList = [];
+    var badGuysList = [];
+    var cardsPlayed = [];
+    var isMerlinGame;
+    var socketid;
+    var selectedAssassinTarget = null;
+
+    if(numPlayers >= 5)
+    {
+      $('#notHost').text("Waiting for host " + $('#player0 .playerName').text() + " to begin the game...");
+      $('#startbtn').prop('disabled', false);
+    }
     var IO = {
 
         /**
@@ -98,6 +215,8 @@
          */
         init: function() {
             IO.socket = io.connect();
+            //IO.socket.emit('playerJoinGame', {name: $('#player' + ID).text(), roomID: $('#accessCode').text()});
+            IO.socket.emit('joinedWaitingRoom', $('#accessCode').text());
             IO.bindEvents();
         },
 
@@ -108,24 +227,912 @@
         bindEvents : function() {
             //IO.socket.on('connected', IO.onConnected );
             //IO.socket.on('newGameCreated', IO.onNewGameCreated );
-            //IO.socket.on('playerJoinedRoom', IO.playerJoinedRoom );
+            IO.socket.on('roomCreated', IO.roomCreated );
+            IO.socket.on('joinedSuccessfully', IO.joinedSuccessfully);
+            IO.socket.on('joinError', IO.joinError );
+            IO.socket.on('playerJoinedRoom', IO.playerJoinedRoom );
+            IO.socket.on('gameStarted', IO.gameStarted);
+            IO.socket.on('questProposed', IO.questProposed);
+            IO.socket.on('voteCounted', IO.voteCounted);
+            IO.socket.on('cardCounted', IO.cardCounted);
+            IO.socket.on('votingTrackGameEnd', IO.votingTrackGameEnd);
+            IO.socket.on('assassinationComplete', IO.assassinationComplete);
+            IO.socket.on('playerDisconnected', IO.playerDisconnected);
+            IO.socket.on('reconnectInfo', IO.reconnectInfo);
+            IO.socket.on('playerReconnected', IO.playerReconnected);
+        },
+
+        roomCreated : function(data) {
+          accessCode = data.room;
+          $('#accessCode').text(accessCode);
+          console.log("room = " + accessCode);
+          numPlayers = 1;
+          $('#numPlayers').text(numPlayers);
+          ID = 0;
+          $('.hostStuff').css('display', 'inline-block');
+          $('#notHost').css('display', 'none');
+          $('#roleSelect').css('display', 'table');
+          checkPlayerList(data.players);
+        },
+
+        joinedSuccessfully : function(data) {
+          $('#joinUI').fadeOut(500, function() {
+            $('#gameUI').fadeIn(500);
+          });
+          accessCode = data.room;
+          $('#accessCode').text(accessCode);
+          console.log("room = " + accessCode);
+          numPlayers = data.players.length;
+          $('#numPlayers').text(numPlayers);
+          $('#notHost').css('display', 'block');
+          $('.hostStuff').css('display', 'none');
+          ID = data.ID;
+          checkPlayerList(data.players);
+        },
+
+        joinError : function(joinError) {
+          $('#joinerror').text(joinError);
+          $('#joinerror').css('display', 'block');
+        },
+
+        playerJoinedRoom : function(players) {
+          for(var i = 0; i < players.length; i++)
+          {
+            //console.log('#player' + i + ' ' + $('#player' + i).length);
+
+            if($('#player' + i).length === 0)
+            {
+              //console.log('xxx');
+              $('<tr><td id = player' + i + ' valign = "middle"><span class = "playerName">' + players[i].name + '</span><span class = "leadPlayer"></span><span class = "voteIcon"></span><span class = "missionIcon"></span></td></tr>').hide().appendTo('#connectedPlayers').fadeIn(500);
+            }
+            else if($('#player' + i + ' .playerName').text() != players[i].name)
+              $('#player' + i + ' .playerName').text(players[i].name);
+          }
+          numPlayers = players.length;
+            $('#numPlayers').text(numPlayers);
+            //console.log(numPlayers);
+            checkStartBtn();
+
+            //console.log("hello");
+        },
+
+        playerDisconnected : function(disconnectedID) {
+          $('#player' + disconnectedID).addClass('disconnected');
+        },
+
+        playerReconnected : function(reconnectedID) {
+          console.log('playerReconnected')
+          $('#player' + reconnectedID).removeClass('disconnected');
+        },
+
+        reconnectInfo : function(data) {
+
+          players = data.players;
+          console.log("players: " + players);
+          numPlayers = players.length;
+          if(numPlayers >= 5)
+          {
+            $('#notHost').text("Waiting for host " + $('#player0 .playerName').text() + " to begin the game...");
+            $('#startbtn').prop('disabled', false);
+          }
+          if(data.open)
+          {
+            accessCode = $('#roomRedirect').text();
+            $('#accessCode').text(accessCode);
+            $('#numPlayers').text(numPlayers);
+            if(ID == 0)
+            {
+              $('.hostStuff').css('display', 'inline-block');
+              $('#notHost').css('display', 'none');
+              $('#roleSelect').css('display', 'table');
+            }
+            else {
+              $('#notHost').css('display', 'block');
+              $('.hostStuff').css('display', 'none');
+            }
+            checkPlayerList(players);
+          }
+          else {
+            startGame(data.players, data.quests);
+            console.log(data.quests + " currentQuest: " + currentQuest);
+            for(var i = 1; i < currentQuest; i++)
+            {
+              if(data.quests[i - 1].success != null)
+              {
+                $('#quest' + i).removeClass('glyphicon-question-sign');
+                $('#questtext' + i).css('opacity', '0');
+              }
+              data.quests[i - 1].success ? $('#quest' + i).addClass('glyphicon-ok-sign') : $('#quest' + i).addClass('glyphicon-remove-sign');
+            }
+            if(data.waitingFor == "vote")
+            {
+              if(ID != leadPlayer)
+                removeLeadUI();
+
+              IO.questProposed({playersChosen: data.playersChosen,
+                players: players,
+                quests: data.quests,
+                lead: leadPlayer,
+                currentQuest: currentQuest
+              });
+            }
+            else if(data.waitingFor == "quest")
+            {
+              removeLeadUI();
+              IO.voteCounted({playersChosen: data.playersChosen,
+                players: players,
+                votePassed: true,
+                quests: quests,
+                leadPlayer: leadPlayer
+              })
+            }
+            else if(data.waitingFor == "end")
+            {
+              removeLeadUI();
+              endGame(data.gameEndReason);
+            }
+          }
+        },
+
+        gameStarted : function(data) {
+          /*$('#notHost').css('display', 'none');
+          checkPlayerList(data.players);
+          players = data.players;
+          quests = data.quests;
+          if(players.length >= 7)
+            $('#twoFailsNote').css('display', 'block')
+          currentQuest = 1;
+          $('.removeOnStart').css('display', 'none');
+          $('.displayOnStart').css('display', 'block');
+          $('.displayOnStart').css('display', '-webkit-flex');
+          $('.displayOnStart').css('display', 'flex');
+          $('#quest1').addClass('currentQuest');
+          $('#questtext1').addClass('currentQuestText');
+          for(var h = 0; h < quests.length; h++)
+            $('#questtext' + (h+1)).text(quests[h].numberOfPlayers);
+          $('#header').text('Hello');
+          $('#accessCode').text(players[ID].role);
+          var badguys = [];
+          var merlins = [];
+          for(var i = 0; i < players.length; i++)
+          {
+            if(players[i].role == 'merlin')
+            {
+              isMerlinGame = true;
+              merlins.push(players[i].name);
+            }
+            else if(players[i].role == 'morgana')
+            {
+              badguys.push(players[i].name);
+              merlins.push(players[i].name);
+            }
+            else if(players[i].role == 'assassin' || players[i].role == 'generic bad guy')
+              badguys.push(players[i].name);
+            else if(players[i].role == 'mordred' && players[ID].role != 'merlin')
+              badguys.push(players[i].name);
+            else if(players[i].role == 'oberon' && players[ID].role == 'merlin')
+              badguys.push(players[i].name)
+            if(players[i].lead)
+            {
+              $('#player' + players[i].playerID + ' .leadPlayer').addClass("glyphicon glyphicon-king");
+              leadPlayer = players[i].playerID;
+            }
+          }
+          ////console.log("badguys: " + badguys);
+          ////console.log("merlins: " + merlins);
+          merlins = shuffle(merlins);
+          badguys = shuffle(badguys);
+
+          ////console.log("shuffled badguys: " + badguys);
+          ////console.log("shuffled merlins: " + merlins);
+
+          if(badguys.indexOf(players[ID].name) > -1)
+            badguys.splice(badguys.indexOf(players[ID].name), 1);
+
+          var displayMerlins = merlins[0];
+          var displayBadguys = badguys[0];
+          for(var j = 1; j < merlins.length; j++)
+            displayMerlins += ', ' + merlins[j];
+          for(var k = 1; k < badguys.length; k++)
+            displayBadguys += ', ' + badguys[k];
+          if(players[ID].role == 'merlin')
+            $('#roleinfo').html('Bad Guys: ' + displayBadguys);
+          else if(players[ID].role == 'percival')
+            $('#roleinfo').html('Appear as Merlin: ' + displayMerlins);
+          else if(players[ID].role == 'morgana' || players[ID].role == 'assassin' || players[ID].role == 'generic bad guy' || players[ID].role == 'mordred')
+          {
+            if(badguys.length > 1)
+              $('#roleinfo').html('Other Bad Guys: ' + displayBadguys);
+            else
+              $('#roleinfo').html('Other Bad Guy: ' + displayBadguys);
+          }
+
+          if(ID === leadPlayer)
+          {
+            //console.log(quests);
+            prepareLead(quests, 1);
+          }
+          else {
+            $('#status').html("Waiting for leader to propose a quest...<br>Current voting track: "+ quests[currentQuest - 1].votingTrack + '/5')
+          }*/
+          players = data.players;
+          quests = data.quests;
+          startGame(data.players, data.quests);
+        },
+
+        questProposed: function(data)
+        {
+          $('#cardTrack').css('display', 'none');
+          $('#cardTrack').empty();
+          playersChosen = data.playersChosen;
+          players = data.players;
+          console.log(data.players);
+          //console.log('questProposed received with playersChosen ' + data.playersChosen);
+          quests = data.quests;
+          var displayProposed = players[data.playersChosen[0]].name + ' and ' + players[data.playersChosen[1]].name;
+          for(var i = 2; i < data.playersChosen.length; i++)
+            displayProposed = players[data.playersChosen[i]].name + ', ' + displayProposed;
+          $('#status').text(players[data.lead].name + ' proposed a quest. Current voting track: ' + quests[data.currentQuest - 1].votingTrack + '/5');
+          $('#voteStatus').html(players[data.lead].name + ' proposes that ' + displayProposed + ' go on this quest.');
+          $('.voteStuff').css('display', 'inline');
+          if(players[ID].vote != null)
+            $('.votebtn').css('display', 'none');
+          $('.voteIcon').removeClass('glyphicon-ok');
+          $('.voteIcon').removeClass('glyphicon-remove');
+          for(var i = 0; i < players.length; i++)
+          {
+            if(players[i].vote == null)
+            {
+              $('#player' + i + ' .voteIcon').addClass('glyphicon glyphicon-time');
+              console.log('time glyphicon');
+            }
+          }
+        },
+
+        voteCounted: function(data)
+        {
+          playersChosen = data.playersChosen;
+          quests = data.quests;
+          players = data.players;
+          leadPlayer = data.leadPlayer;
+          //previousLead = data.previousLead;
+
+          for(var i = 0; i < players.length; i++)
+          {
+            if(players[i].vote != null)
+            {
+              $('#player' + i +' .voteIcon').removeClass('glyphicon-time');
+            }
+          }
+          if(data.votePassed != null)
+          {
+            $('.voteStuff').css('display', 'none');
+            //players[leadPlayer].lead = false;
+            $(' .leadPlayer').removeClass("glyphicon glyphicon-king");
+            /*if(leadPlayer == players.length - 1)
+              leadPlayer = 0;
+            else {
+              leadPlayer++;
+            }
+            players[leadPlayer].lead = true;*/
+            for(var i = 0; i < players.length; i++)
+            {
+              $('#player' + i +' .voteIcon').addClass((players[i].vote == true) ? 'glyphicon glyphicon-ok' : 'glyphicon glyphicon-remove');
+              players[i].vote = null;
+            }
+            if(data.votePassed)
+              votePassed(data.playersChosen);
+            else if(data.votePassed == false)
+              voteFailed();
+          }
+        },
+
+
+        /*
+        io.to('' + room).emit('cardCounted', {
+          players: players,
+          allCardsReceived: allCardsReceived,
+          cardsPlayed: data.cardsPlayed,
+          quests: data.quests,
+          currentQuest: data.currentQuest;
+        });*/
+        cardCounted: function(data)
+        {
+          quests = data.quests;
+          cardsPlayed = data.cardsPlayed;
+          $('#player' + data.player + ' .missionIcon').removeClass('glyphicon glyphicon-time');
+          if(data.gameEndReason)
+            endGame(data.gameEndReason);
+          //console.log("cardCounted received with cardsPlayed: " + cardsPlayed);
+          if(data.allCardsReceived)
+          {
+
+            var cardTrack = [];
+            for(var i = 0; i < cardsPlayed.length; i++)
+            {
+              if(cardsPlayed[i])
+                cardTrack.push('<span class = "glyphicon glyphicon-ok"></span>')
+              else {
+                cardTrack.push('<span class = "glyphicon glyphicon-remove"></span>')
+              }
+            }
+            cardTrack = shuffle(cardTrack);
+            //console.log("cardTrack after shuffle: " + cardTrack);
+            for(var j = 0; j < cardTrack.length; j++)
+              $('#cardTrack').append(cardTrack[j]);
+            $('#cardTrack').css('display', '-webkit-flex');
+            $('#cardTrack').css('display', 'flex');
+            $('.missionStuff').css('display', 'none');
+            $('#quest' + currentQuest).removeClass('glyphicon-question-sign');
+            $('#questtext' + currentQuest).css('opacity', '0');
+            console.log(quests);
+            console.log(currentQuest);
+            console.log(quests[currentQuest - 1].success);
+            if(quests[currentQuest - 1].success)
+            {
+              $('#quest' + currentQuest).addClass('glyphicon-ok-sign');
+              if(data.gameEndReason == null)
+                $('#status').html(playersChosenToString(playersChosen) + " went on quest " + currentQuest + " and it succeeded.<br>Waiting for leader to propose a quest...<br>Current voting track: "+ quests[currentQuest].votingTrack + '/5');
+              else {
+                $('#status').html(playersChosenToString(playersChosen) + " went on quest " + currentQuest + " and it succeeded.<br>" + data.gameEndReason);
+              }
+            }
+            else {
+              $('#quest' + currentQuest).addClass('glyphicon-remove-sign');
+              if(data.gameEndReason == null)
+                $('#status').html(playersChosenToString(playersChosen) + " went on quest " + currentQuest + " and it failed.<br>Waiting for leader to propose a quest...<br>Current voting track: "+ quests[currentQuest].votingTrack + '/5');
+              else {
+                $('#status').html(playersChosenToString(playersChosen) + " went on quest " + currentQuest + " and it failed.<br>" + data.gameEndReason);
+              }
+            }
+            if(data.gameEndReason == null)
+            {
+              $('#player' + leadPlayer + ' .leadPlayer').addClass("glyphicon glyphicon-king");
+              currentQuest++;
+              $('#quest' + currentQuest).addClass('currentQuest');
+              $('#questtext' + currentQuest).addClass('currentQuestText');
+              if(ID === leadPlayer)
+                prepareLead(quests, currentQuest);
+            }
+          }
+        },
+
+        votingTrackGameEnd: function(){
+          endGame("Five quest proposals were rejected. Bad guys win!");
+        },
+
+        assassinationComplete: function(data){
+          $('#header').text("Game over");
+          $('#voteTrack').css('display', 'none');
+          var merlin;
+          var assassin;
+          for(var i = 0; i < players.length; i++)
+          {
+            if(players[i].role == 'merlin')
+              merlin = players[i].name;
+            else if(players[i].role == 'assassin')
+              assassin = players[i].name;
+          }
+          if(data.goodGuysWin)
+          {
+            $('#status').html("Assassin " + assassin + " assassinated " + players[data.target].name + ", who was not Merlin. <br>" + merlin + " was Merlin. <br>Good guys win!");
+            if(players[ID].role == 'morgana' || players[ID].role == 'assassin' || players[ID].role == 'generic bad guy' || players[ID].role == 'mordred' || players[ID].role == 'oberon')
+              $('#accessCode').text("You lose!");
+            else {
+              $('#accessCode').text("You win!");
+            }
+          }
+          else{
+            $('#status').html("Assassin " + assassin + " assassinated " + merlin + ", who was Merlin. <br>Bad guys win!");
+            if(players[ID].role == 'morgana' || players[ID].role == 'assassin' || players[ID].role == 'generic bad guy' || players[ID].role == 'mordred' || players[ID].role == 'oberon')
+              $('#accessCode').text("You win!");
+            else {
+              $('#accessCode').text("You lose!");
+            }
+          }
+
+          $('#homebtn').css('display', 'inline-block');
+          IO.socket.emit('gameEnd', accessCode);
         }
+
+
+
+    }
+    function startGame(players, quests){
+      $('.hostStuff').css('display', 'none');
+      $('#notHost').css('display', 'none');
+      checkPlayerList(players);
+
+      if(players.length >= 7)
+        $('#twoFailsNote').css('display', 'block')
+      for(currentQuest = 1; currentQuest < 5 && quests[currentQuest - 1].success != null; currentQuest++)
+      {}
+      console.log("currentQuest: " + currentQuest);
+      $('.removeOnStart').css('display', 'none');
+      $('.displayOnStart').css('display', 'block');
+      $('.displayOnStart').css('display', '-webkit-flex');
+      $('.displayOnStart').css('display', 'flex');
+      $('#quest' + currentQuest).addClass('currentQuest');
+      $('#questtext' + currentQuest).addClass('currentQuestText');
+      for(var h = 0; h < quests.length; h++)
+        $('#questtext' + (h+1)).text(quests[h].numberOfPlayers);
+      $('#header').text('Hello');
+      $('#accessCode').text(players[ID].role);
+      var badguys = [];
+      var merlins = [];
+      for(var i = 0; i < players.length; i++)
+      {
+        if(players[i].role == 'merlin')
+        {
+          isMerlinGame = true;
+          merlins.push(players[i].name);
+        }
+        else if(players[i].role == 'morgana')
+        {
+          badguys.push(players[i].name);
+          merlins.push(players[i].name);
+        }
+        else if(players[i].role == 'assassin' || players[i].role == 'generic bad guy')
+          badguys.push(players[i].name);
+        else if(players[i].role == 'mordred' && players[ID].role != 'merlin')
+          badguys.push(players[i].name);
+        else if(players[i].role == 'oberon' && players[ID].role == 'merlin')
+          badguys.push(players[i].name)
+        if(players[i].lead)
+        {
+          $('#player' + players[i].playerID + ' .leadPlayer').addClass("glyphicon glyphicon-king");
+          leadPlayer = players[i].playerID;
+        }
+      }
+      ////console.log("badguys: " + badguys);
+      ////console.log("merlins: " + merlins);
+      merlins = shuffle(merlins);
+      badguys = shuffle(badguys);
+
+      ////console.log("shuffled badguys: " + badguys);
+      ////console.log("shuffled merlins: " + merlins);
+
+      if(badguys.indexOf(players[ID].name) > -1)
+        badguys.splice(badguys.indexOf(players[ID].name), 1);
+
+      var displayMerlins = merlins[0];
+      var displayBadguys = badguys[0];
+      for(var j = 1; j < merlins.length; j++)
+        displayMerlins += ', ' + merlins[j];
+      for(var k = 1; k < badguys.length; k++)
+        displayBadguys += ', ' + badguys[k];
+      if(players[ID].role == 'merlin')
+        $('#roleinfo').html('Bad Guys: ' + displayBadguys);
+      else if(players[ID].role == 'percival')
+        $('#roleinfo').html('Appear as Merlin: ' + displayMerlins);
+      else if(players[ID].role == 'morgana' || players[ID].role == 'assassin' || players[ID].role == 'generic bad guy' || players[ID].role == 'mordred')
+      {
+        if(badguys.length > 1)
+          $('#roleinfo').html('Other Bad Guys: ' + displayBadguys);
+        else
+          $('#roleinfo').html('Other Bad Guy: ' + displayBadguys);
+      }
+
+      if(ID === leadPlayer)
+      {
+        //console.log(quests);
+        prepareLead(quests, currentQuest);
+      }
+      else {
+        $('#status').html("Waiting for leader to propose a quest...<br>Current voting track: "+ quests[currentQuest - 1].votingTrack + '/5')
+      }
+    }
+    function checkStartBtn(){
+      if(numPlayers >= 5)
+      {
+        if(badGuysList.length > Math.ceil(numPlayers/3))
+        {
+          $('#startError').css('display', 'block');
+          $('#numberOfPlayers').text(numPlayers);
+          $('#numberOfBadGuys').text(Math.ceil(numPlayers/3));
+          $('#numberOfBadRolesPicked').text(badGuysList.length);
+          $('#startbtn').prop('disabled', true);
+        }
+        else
+        {
+          $('#startError').css('display', 'none');
+          $('#startbtn').prop('disabled', false);
+        }
+        $('#notHost').text("Waiting for host " + $('#player0 .playerName').text() + " to begin the game...");
+      }
+      else {
+        $('#startbtn').prop('disabled', true);
+      }
     }
 
+    function checkPlayerList(playerList) {
+      for(var i = 0; i < playerList.length; i++)
+      {
+        if($('#player' + i).length === 0)
+        {
+          //console.log('xxx');
+          $('<tr><td id = player' + i + ' valign = "middle"><span class = "playerName">' + playerList[i].name + '</span><span class = "leadPlayer"></span><span class = "voteIcon"></span><span class = "missionIcon"></span></td></tr>').hide().appendTo('#connectedPlayers').fadeIn(500);
+        }
+        else if($('#player' + i + ' .playerName').text() != playerList[i].name)
+          $('#player' + i + ' .playerName').text(playerList[i].name);
+      }
+      numPlayers = playerList.length;
+      $('#numPlayers').text(numPlayers);
+    }
+
+    function prepareLead(quests, questNum) {
+      ////console.log('i am lead');
+      //console.dir(quests);
+      playersChosen = [];
+      $('.leadStuff').css('display', 'inline');
+      $('#proposebtn').prop('disabled', 'true');
+      $('#proposeStatus').html("You have not selected anyone to go on this quest.");
+      $('#leadinfo').css('display', 'block');
+      var currentQuest = questNum;
+      $('#currentQuest').text('' + questNum);
+      playersNeeded = quests[questNum - 1].numberOfPlayers;
+      $('#questNumPeople').text('' + playersNeeded);
+      ////console.log("playersNeeded: " + playersNeeded);
+      $('#tableTitle').text("Quest " + questNum + ": Choose " + playersNeeded + " players");
+      $('td').addClass('selectable');
+    }
+
+    function removeLeadUI() {
+      //playersChosen = [];
+      $('.leadStuff').css('display', 'none');
+      $('#leadinfo').css('display', 'none');
+      $('#tableTitle').text("Connected Players: " + players.length);
+      $('.selectable').removeClass('selectable');
+      $('.selected').removeClass('selected');
+    }
+
+    function removeAssassinateUI() {
+      //playersChosen = [];
+      $('.assassinateStuff').css('display', 'none');
+      $('#tableTitle').text("Connected Players: " + players.length);
+      $('.assssinSelectable').removeClass('selectable');
+      $('.assssinSelected').removeClass('selected');
+    }
+
+    function votePassed(playersChosen) {
+      //console.log(playersChosen);
+      $('.voteStuff').css('display', 'none');
+      cardsPlayed = [];
+      var displayProposed = players[playersChosen[0]].name + ' and ' + players[playersChosen[1]].name;
+      for(var i = 2; i < playersChosen.length; i++)
+        displayProposed = players[playersChosen[i]].name + ', ' + displayProposed;
+      $('#status').text("Vote passed. " + displayProposed + " will go on quest " + currentQuest + ".");
+      console.log(players);
+      for(var j = 0; j < playersChosen.length; j++)
+      {
+        if(players[playersChosen[j]].cardPlayed == 0)
+          $('#player' + playersChosen[j] + ' .missionIcon').addClass('glyphicon glyphicon-time');
+        if(ID == playersChosen[j])
+          prepareMission();
+      }
+    }
+
+    function prepareMission() {
+      $('.missionStuff').css('display', 'inline-block');
+      $('.missionbtn').prop('disabled', false);
+      if(players[ID].role === 'percival' || players[ID].role === 'merlin' || players[ID].role === 'generic good guy')
+      {
+        $('#missionStatus').text("As a Loyal Servant of Arthur, you are only able to play a \"success\" card.");
+        $('#failbtn').prop('disabled', 'true');
+      }
+      else {
+        $('#missionStatus').text("As a Minion of Mordred, you can choose whether to play a \"success\" or \"fail\" card.");
+      }
+    }
+
+    function prepareAssassination() {
+      $('#tableTitle').text("Who do you think is Merlin?");
+      $('#assassinatebtn').css('display', 'inline-block');
+      $('#assassinateStatus').css('display', 'block');
+      $('td').addClass('assassinSelectable');
+    }
+
+    function voteFailed() {
+      $('#status').html("Vote failed.<br>Current voting track: "+ quests[currentQuest - 1].votingTrack + '/5');
+      $('#player' + leadPlayer + ' .leadPlayer').addClass("glyphicon glyphicon-king");
+
+      if(ID === leadPlayer)
+      {
+        //console.log(quests);
+        prepareLead(quests, currentQuest);
+      }
+      else {
+        $('#status').html("Vote failed. Waiting for leader to propose a quest...<br>Current voting track: "+ quests[currentQuest - 1].votingTrack + '/5');
+      }
+
+    }
+
+    $('table').on('click', '.selectable', function(event){
+      //console.log('selectable clicked');
+      var selectedPlayer;
+      if($(this).hasClass('selected'))
+      {
+        //playersChosen.splice(playersChosen.indexOf(players[ID].name), 1);
+
+        selectedPlayer = parseInt($(this).attr('id').substring(6));
+        if(playersChosen.indexOf(selectedPlayer) > -1)
+          playersChosen.splice(playersChosen.indexOf(selectedPlayer), 1);
+        //console.log(playersChosen);
+        $('#proposebtn').prop('disabled', true);
+        updateProposeStatus();
+        $(this).removeClass('selected');
+      }
+      else if(playersChosen.length < playersNeeded)
+      {
+        selectedPlayer = parseInt($(this).attr('id').substring(6));
+        playersChosen.push(selectedPlayer);
+        //console.log(playersChosen);
+        if(playersChosen.length == playersNeeded)
+          $('#proposebtn').prop('disabled', false);
+        updateProposeStatus();
+        $(this).addClass('selected');
+      }
+    });
+
+    $('table').on('click', '.assassinSelectable', function(event){
+      //console.log('assassinSelectable clicked');
+      if($(this).hasClass('assassinSelected'))
+      {
+        //playersChosen.splice(playersChosen.indexOf(players[ID].name), 1);
+
+        selectedAssassinTarget = null;
+        $('#assassinatebtn').prop('disabled', true);
+        updateAssassinateStatus(selectedAssassinTarget);
+        $(this).removeClass('assassinSelected');
+      }
+      else
+      {
+        //console.log($(this).attr('id').substring(6) + " clicked; selectedPlayer = " + selectedPlayer);
+        selectedAssassinTarget = parseInt($(this).attr('id').substring(6));
+        //console.log($(this).attr('id').substring(6) + " clicked; selectedPlayer = " + selectedPlayer);
+        $('#assassinatebtn').prop('disabled', false);
+        updateAssassinateStatus(selectedAssassinTarget);
+
+      }
+    });
+
+    function updateProposeStatus(){
+      if(playersChosen.length == 0)
+        proposeStatus = "You have not selected anyone to go on this quest.";
+      else if(playersChosen.length == 1)
+        proposeStatus = "You have selected " + idToName(playersChosen[0]) + " to go on this quest.";
+      else if(playersChosen.length == 2)
+        proposeStatus = "You have selected " + idToName(playersChosen[0]) +
+        " and " + idToName(playersChosen[1]) + " to go on this quest.";
+      else if(playersChosen.length == 3)
+        proposeStatus = "You have selected " + idToName(playersChosen[0]) +
+        ", " + idToName(playersChosen[1]) +  " and " + idToName(playersChosen[2]) + " to go on this quest.";
+      else if(playersChosen.length == 4)
+        proposeStatus = "You have selected " + idToName(playersChosen[0]) +
+        ", " + idToName(playersChosen[1]) +
+        ", " + idToName(playersChosen[2]) +
+        " and " + idToName(playersChosen[3]) + " to go on this quest.";
+      else if(playersChosen.length == 5)
+        proposeStatus = "You have selected " + idToName(playersChosen[0]) +
+        ", " + idToName(playersChosen[1]) +
+        ", " + idToName(playersChosen[2]) +
+        ", " + idToName(playersChosen[3]) +
+        " and " + idToName(playersChosen[4]) + " to go on this quest.";
+      $('#proposeStatus').text(proposeStatus);
+    }
+
+    function updateAssassinateStatus(selectedPlayer){
+      var assassinateStatus;
+      for(var i = 0; i < players.length; i++)
+        $('#player' + i).removeClass('assassinSelected');
+      $('#player' + selectedPlayer).addClass('assassinSelected');
+      if(selectedPlayer == null)
+        assassinateStatus = "You have not selected anyone to assassinate.";
+      else {
+        assassinateStatus = "You have selected "+ idToName(selectedPlayer) +" to assassinate.";
+      }
+      $('#assassinateStatus').text(assassinateStatus);
+    }
+
+    function idToName(ID){
+      for(var i = 0; i < players.length; i++)
+      {
+        if(players[i].playerID == ID)
+        {
+          return players[i].name;
+        }
+      }
+    }
+
+    function endGame(gameEndReason)
+    {
+      $('#status').text(gameEndReason);
+      $('.voteIcon').removeClass('glyphicon-ok');
+      $('.voteIcon').removeClass('glyphicon-remove');
+      if(gameEndReason == "Three quests have succeeded. Waiting for Assassin to guess Merlin..." && isMerlinGame)
+      {
+        var assassinID;
+        for(var i = 0; i < players.length; i++)
+        {
+          if(players[i].role == 'assassin')
+            assassinID = i;
+        }
+        $('.voteIcon #player' + assassinID).addClass('glyphicon-time');
+        if(players[ID].role === 'assassin')
+        {
+          prepareAssassination();
+        }
+      }
+      else if(gameEndReason == "Three quests have succeeded.")
+      {
+        $('#status').html("Three quests have succeeded.<br>Good guys win!");
+        $('#header').text("Game over");
+        if(players[ID].role == 'morgana' || players[ID].role == 'assassin' || players[ID].role == 'generic bad guy' || players[ID].role == 'mordred' || players[ID].role == 'oberon')
+          $('#accessCode').text("You lose!");
+        else {
+          $('#accessCode').text("You win!");
+        }
+        $('#homebtn').css('display', 'inline-block');
+        IO.socket.emit('gameEnd', accessCode);
+      }
+      else {
+        $('#header').text("Game over");
+        if(players[ID].role == 'morgana' || players[ID].role == 'assassin' || players[ID].role == 'generic bad guy' || players[ID].role == 'mordred' || players[ID].role == 'oberon')
+          $('#accessCode').text("You win!");
+        else {
+          $('#accessCode').text("You lose!");
+        }
+        $('#homebtn').css('display', 'inline-block');
+        IO.socket.emit('gameEnd', accessCode);
+      }
+    }
+    /*$('tr').on('click', '.selected', function(event){
+      //console.log('selected clicked');
+
+    });*/
+
+
+    $('#roleSelect button').on('click', function(){
+
+      /*if($(this).hasClass('roleSelected'))
+      {
+        console.log('removed');
+        $(this).removeClass('roleSelected');
+      }*/
+      if(!$(this).hasClass('roleSelected')) {
+
+        if($(this).hasClass('yes'))
+        {
+          console.log($(this).attr('id'));
+          var role = $(this).attr('id').replace('Yes', '');
+          console.log(role);
+          if(role === 'merlin')
+          {
+            goodGuysList.push(role);
+            badGuysList.push('assassin');
+          }
+          else if(role === 'percival')
+            goodGuysList.push(role);
+          else {
+            badGuysList.push(role);
+          }
+          if($(this).attr('id') === 'merlinYes')
+          {
+            $('#percivalSelect').css('display', 'table-row');
+            $('#mordredSelect').css('display', 'table-row');
+          }
+          if($(this).attr('id') === 'percivalYes')
+          {
+            $('#morganaSelect').css('display', 'table-row');
+          }
+          $('#' + $(this).attr('id').replace('Yes', 'No')).removeClass('roleSelected');
+        }
+        else {
+          var role = $(this).attr('id').replace('No', '');
+          if(role === 'merlin')
+          {
+            if(goodGuysList.indexOf(role) > -1)
+              goodGuysList.splice(goodGuysList.indexOf(role), 1);
+            if(badGuysList.indexOf('assassin') > -1)
+              badGuysList.splice(badGuysList.indexOf('assassin'), 1);
+          }
+          else if(role === 'percival')
+          {
+            if(goodGuysList.indexOf(role) > -1)
+              goodGuysList.splice(goodGuysList.indexOf(role), 1);
+          }
+          else {
+            if(badGuysList.indexOf(role) > -1)
+              badGuysList.splice(badGuysList.indexOf(role), 1);
+          }
+          if($(this).attr('id') === 'merlinNo')
+          {
+            $('#percivalSelect').css('display', 'none');
+            $('#percivalSelect button').removeClass('roleSelected');
+            if(goodGuysList.indexOf('percival') > -1)
+              goodGuysList.splice(goodGuysList.indexOf('percival'), 1);
+            $('#mordredSelect').css('display', 'none');
+            $('#mordredSelect button').removeClass('roleSelected');
+            if(badGuysList.indexOf('mordred') > -1)
+              badGuysList.splice(badGuysList.indexOf('mordred'), 1);
+            $('#morganaSelect').css('display', 'none');
+            $('#morganaSelect button').removeClass('roleSelected');
+            if(badGuysList.indexOf('morgana') > -1)
+              badGuysList.splice(badGuysList.indexOf('morgana'), 1);
+          }
+          if($(this).attr('id') === 'percivalNo')
+          {
+            $('#morganaSelect').css('display', 'none');
+            $('#morganaSelect button').removeClass('roleSelected');
+            if(badGuysList.indexOf('morgana') > -1)
+              badGuysList.splice(badGuysList.indexOf('morgana'), 1);
+          }
+          $('#' + $(this).attr('id').replace('No', 'Yes')).removeClass('roleSelected');
+        }
+        $('#goodGuysList').text(rolesToString(goodGuysList));
+        $('#badGuysList').text(rolesToString(badGuysList));
+        $(this).addClass('roleSelected');
+      }
+      checkStartBtn();
+    });
+
+
+
+    $('#startbtn').one('click', function(){
+      $('.hostStuff').css('display', 'none');
+      IO.socket.emit('hostStartGame', accessCode, goodGuysList, badGuysList);
+    });
+
+    $('#endbtn').one('click', function(){
+      IO.socket.emit('gameEnd');
+      location.reload();
+    });
+
+    $('#proposebtn').on('click', function(){
+      $('#proposebtn').css('display', 'none');
+      removeLeadUI();
+      //console.log('proposalSubmitted emitted with playersChosen ' + playersChosen);
+      IO.socket.emit('proposalSubmitted', {"accessCode": accessCode, "lead": ID, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest});
+    });
+
+    $('.votebtn').on('click', function(){
+      $('.votebtn').css('display', 'none');
+      var approve = ($(this).attr('id') === 'approvebtn');
+      //players[ID].vote = approve;
+      //console.log('voteSubmitted emitted with players ' + players);
+      IO.socket.emit('voteSubmitted', {"accessCode": accessCode, "voter": ID, "vote": approve, "players": players, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest, "leadPlayer": leadPlayer});
+    });
+
+    $('.missionbtn').on('click', function(){
+      $(this).prop('disabled', true);
+      $('.missionbtn').css('display', 'none');
+      var success = ($(this).attr('id') === 'successbtn');
+      //cardsPlayed.push(success);
+      //console.log('cardPlayed emitted with cardsPlayed ' + cardsPlayed);
+      IO.socket.emit('cardPlayed', {"accessCode": accessCode, "player": ID, "cardPlayed": success, "cardsPlayed": cardsPlayed, "playersChosen": playersChosen, "quests": quests, "currentQuest": currentQuest, "isMerlinGame": isMerlinGame});
+    });
+
+    $('#assassinatebtn').on('click', function(){
+      $(this).css('display', 'none');
+      var assassinSelected = $('.assassinSelected').attr('id').substring(6);
+      //console.log('assassinate emitted with assassinSelected ' + assassinSelected);
+      IO.socket.emit('assassinate', {"accessCode": accessCode, "assassinSelected": assassinSelected, "players": players});
+    });
 
     var state;
-    /*if($('#joinerror').text().length ==  0)
+    if($('#joinerror').text().length ==  0)
     {
       state = "title";
       $('#createUI').css('display', 'none');
       $('#joinUI').css('display', 'none');
+      $('#gameUI').css('display', 'none');
       $('#joinerror').css('display', 'none');
     }
     else {
       state = "join";
       $('#titlecontainer').css('display', 'none');
       $('#createUI').css('display', 'none');
-    }*/
+    }
     $('#createbtn').click(function() {
       $('#titlecontainer').fadeOut(500, function() {
           $('#createUI').fadeIn(500);
@@ -159,10 +1166,10 @@
           $('#createerror').text('Please enter a valid name.');
         }
         else {
+          IO.socket.emit('hostCreateNewGame', $('#createName').val().trim());
           $('#createUI').fadeOut(500, function() {
-              $('#gameUI').fadeIn(500);
+            $('#gameUI').fadeIn(500);
           });
-          IO.socket.emit('hostCreateNewGame');
           console.log("hostCreateNewGame emitted");
         }
     });
@@ -173,34 +1180,67 @@
           $('#joinerror').css('display', 'block');
         }
         else {
-
+          IO.socket.emit('playerJoinGame', {name: $('#joinName').val(), roomID: $('#accessCodeInput').val()});
+          console.log("playerJoinGame emitted");
         }
-        /*else {
-          IO.socket.emit('playerJoinGame', {name: $('#joinName').val(), roomID: $('#accessCode').val()});
-        }*/
     });
+
+
+
+
+
+
+    function shuffle(array) {
+      var m = array.length, t, i;
+
+      // While there remain elements to shuffle…
+      while (m) {
+
+        // Pick a remaining element…
+        i = Math.floor(Math.random() * m--);
+
+        // And swap it with the current element.
+        t = array[m];
+        array[m] = array[i];
+        array[i] = t;
+      }
+
+      return array;
+    }
+
+    function playersChosenToString(playersChosenArray){
+      if(playersChosenArray.length == 0)
+        return "none";
+      var displayProposed = players[playersChosenArray[0]].name + ' and ' + players[playersChosenArray[1]].name;
+      for(var i = 2; i < playersChosenArray.length; i++)
+        displayProposed = players[playersChosenArray[i]].name + ', ' + displayProposed;
+      return displayProposed;
+    }
+
+    function rolesToString(roleArray){
+      if(roleArray.length == 0)
+        return "none";
+      else if(roleArray.length == 1)
+        return roleArray[0];
+      var display = roleArray[0] + ' and ' + roleArray[1];
+      for(var i = 2; i < roleArray.length; i++)
+        display = roleArray[i] + ', ' + display;
+      return display;
+    }
     IO.init();
+
+    if($('#roomRedirect').text())
+    {
+      console.log($('#roomRedirect').text());
+      ID = parseInt($('#IDRedirect').text());
+      host = ID == 0;
+      accessCode = $('#roomRedirect').text();
+      $('#titlecontainer').css('display', 'none');
+      $('#createUI').css('display', 'none');
+      $('#joinUI').css('display', 'none');
+      $('#gameUI').css('display', 'block');
+      $('#joinerror').css('display', 'none');
+      IO.socket.emit('playerReconnect', {room: parseInt($('#roomRedirect').text()), ID: ID});
+    }
   });
 </script>
-  <!--<script id = "joinError" type = "application/json">
-    {{{ jsonifiedProps.joinError }}}
-  </script>
-  <script>
-    var props = JSON.parse(document.getElementById("props").innerHTML);
-    console.log(props);
-    React.render(TitleContainer(props), document.getElementById('container'));
-  </script>
-  <script src="/app.js" type = "text/babel"></script>
-  <script>
-    $(function() {
-      var error = $('#joinError').html();
-      console.log(error);
-      if(error)
-      {
-        console.log($('#joinbtn').html());
-        $('#joinbtn').click();
-      }
-    });
-  </script>-->
-<!--</body>
-</html>-->

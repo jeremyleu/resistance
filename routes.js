@@ -6,7 +6,15 @@ var index = require('./routes/index');
 module.exports = function (app) {
   app.get('/', function(req, res){
     console.log('hello');
-    res.render('index', {joinError: ''});
+    console.log(req.session.connected);
+    if(req.session.connected)
+      res.status(500).send("There is already an instance of Resistance: Avalon open.");
+    else if(!req.session.room || req.session.room == -1000)
+      res.render('new_index');
+    else {
+      console.log("req.session.room is " + req.session.room);
+      res.render('new_index', {room: req.session.room+1000, ID: req.session.ID});
+    }
   });
   app.post('/createRoom', function(req, res){
     //var io = req.app.get('socketio');
@@ -34,6 +42,8 @@ module.exports = function (app) {
     req.app.locals.rooms[room] = newRoom;
     console.log(newRoom);
     req.session.host = true;
+    req.session.ID = 0;
+
     res.render('waitingRoom', {accessCode: req.app.locals.rooms[room].ID + 1000,
       numPlayers: newRoom.players.length,
       players: newRoom.players,
@@ -62,7 +72,7 @@ module.exports = function (app) {
       var i;
       for(i = 0; i < req.app.locals.rooms[room].players.length; i++)
       {
-        if(player.name.toUpperCase() === req.app.locals.rooms[room].players[i].name.toUpperCase())
+        if(player.name.trim().toUpperCase() === req.app.locals.rooms[room].players[i].name.trim().toUpperCase())
         {
           res.render('index', {joinError: 'That name is already taken.'});
           return;
