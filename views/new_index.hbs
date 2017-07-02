@@ -182,7 +182,7 @@
 <script type = "text/javascript">
   $(function() {
 
-    console.log("h/w changed to " + $(window).height());
+    //console.log("h/w changed to " + $(window).height());
 
     /*var isOnIOS = navigator.userAgent.match(/iPad/i)|| navigator.userAgent.match(/iPhone/i);
     var eventName = isOnIOS ? "pagehide" : "beforeunload";
@@ -254,7 +254,7 @@
         roomCreated : function(data) {
           accessCode = data.room;
           $('#accessCode').text(accessCode);
-          console.log("room = " + accessCode);
+          //console.log("room = " + accessCode);
           numPlayers = 1;
           $('#numPlayers').text(numPlayers);
           ID = 0;
@@ -270,7 +270,7 @@
           });
           accessCode = data.room;
           $('#accessCode').text(accessCode);
-          console.log("room = " + accessCode);
+          //console.log("room = " + accessCode);
           numPlayers = data.players.length;
           $('#numPlayers').text(numPlayers);
           $('#notHost').css('display', 'block');
@@ -310,14 +310,14 @@
         },
 
         playerReconnected : function(reconnectedID) {
-          console.log('playerReconnected')
+          //console.log('playerReconnected')
           $('#player' + reconnectedID).removeClass('disconnected');
         },
 
         reconnectInfo : function(data) {
 
           players = data.players;
-          console.log("players: " + players);
+          //console.log("players: " + players);
           numPlayers = players.length;
           if(numPlayers >= 5)
           {
@@ -343,7 +343,7 @@
           }
           else {
             startGame(data.players, data.quests);
-            console.log(data.quests + " currentQuest: " + currentQuest);
+            //console.log(data.quests + " currentQuest: " + currentQuest);
             for(var i = 1; i < currentQuest; i++)
             {
               if(data.quests[i - 1].success != null)
@@ -475,7 +475,7 @@
           $('#cardTrack').empty();
           playersChosen = data.playersChosen;
           players = data.players;
-          console.log(data.players);
+          //console.log(data.players);
           //console.log('questProposed received with playersChosen ' + data.playersChosen);
           quests = data.quests;
           var displayProposed = players[data.playersChosen[0]].name + ' and ' + players[data.playersChosen[1]].name;
@@ -493,7 +493,7 @@
             if(players[i].vote == null)
             {
               $('#player' + i + ' .voteIcon').addClass('glyphicon glyphicon-time');
-              console.log('time glyphicon');
+              //console.log('time glyphicon');
             }
           }
         },
@@ -574,9 +574,9 @@
             $('.missionStuff').css('display', 'none');
             $('#quest' + currentQuest).removeClass('glyphicon-question-sign');
             $('#questtext' + currentQuest).css('opacity', '0');
-            console.log(quests);
-            console.log(currentQuest);
-            console.log(quests[currentQuest - 1].success);
+            //console.log(quests);
+            //console.log(currentQuest);
+            //console.log(quests[currentQuest - 1].success);
             if(quests[currentQuest - 1].success)
             {
               $('#quest' + currentQuest).addClass('glyphicon-ok-sign');
@@ -669,7 +669,7 @@
         $('#twoFailsNote').css('display', 'block')
       for(currentQuest = 1; currentQuest < 5 && quests[currentQuest - 1].success != null; currentQuest++)
       {}
-      console.log("currentQuest: " + currentQuest);
+      //console.log("currentQuest: " + currentQuest);
       $('.removeOnStart').css('display', 'none');
       $('.displayOnStart').css('display', 'block');
       $('.displayOnStart').css('display', '-webkit-flex');
@@ -824,7 +824,7 @@
       for(var i = 2; i < playersChosen.length; i++)
         displayProposed = players[playersChosen[i]].name + ', ' + displayProposed;
       $('#status').text("Vote passed. " + displayProposed + " will go on quest " + currentQuest + ".");
-      console.log(players);
+      //console.log(players);
       for(var j = 0; j < playersChosen.length; j++)
       {
         if(players[playersChosen[j]].cardPlayed == 0)
@@ -1025,9 +1025,9 @@
 
         if($(this).hasClass('yes'))
         {
-          console.log($(this).attr('id'));
+          //console.log($(this).attr('id'));
           var role = $(this).attr('id').replace('Yes', '');
-          console.log(role);
+          //console.log(role);
           if(role === 'merlin')
           {
             goodGuysList.push(role);
@@ -1196,7 +1196,7 @@
           $('#createUI').fadeOut(500, function() {
             $('#gameUI').fadeIn(500);
           });
-          console.log("hostCreateNewGame emitted");
+          //console.log("hostCreateNewGame emitted");
         }
     });
     $('#joinroombtn').click(function(event) {
@@ -1207,7 +1207,7 @@
         }
         else {
           IO.socket.emit('playerJoinGame', {name: $('#joinName').val(), roomID: $('#accessCodeInput').val()});
-          console.log("playerJoinGame emitted");
+          //console.log("playerJoinGame emitted");
         }
     });
 
@@ -1257,7 +1257,7 @@
 
     if($('#roomRedirect').text())
     {
-      console.log($('#roomRedirect').text());
+      //console.log($('#roomRedirect').text());
       ID = parseInt($('#IDRedirect').text());
       host = ID == 0;
       accessCode = $('#roomRedirect').text();
